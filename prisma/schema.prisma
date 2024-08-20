@@ -1,0 +1,639 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model ar_gather_data {
+  id        BigInt  @id @default(autoincrement())
+  mark_type String? @db.VarChar(255)
+  mark_data String? @db.VarChar(255)
+  image_url String? @db.VarChar(255)
+  uuid      String? @db.VarChar(100)
+}
+
+model baggagetrace {
+  id             BigInt    @id
+  baggage_id     BigInt?
+  tag10_id       String?   @db.VarChar(10)
+  source_id      String?   @db.VarChar(10)
+  source_airport String?   @db.VarChar(10)
+  flight_date    DateTime? @db.Date
+  flight_no      String?   @db.VarChar(10)
+  flight_id      BigInt?
+  uuid           String?   @db.VarChar(255)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model config_template {
+  id          BigInt    @id
+  scene_id    BigInt
+  type        Int       @default(10) @db.TinyInt
+  value       String    @db.Text
+  create_id   BigInt
+  create_time DateTime  @db.DateTime(0)
+  update_id   BigInt?
+  update_time DateTime? @db.DateTime(0)
+
+  @@index([scene_id], map: "idx_scene_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model cut_data {
+  id                      BigInt    @id
+  project_id              BigInt
+  image_id                BigInt
+  image_batch_relation_id BigInt?
+  batch_id                BigInt?
+  type                    Int?
+  all_points_x            String?   @db.VarChar(255)
+  all_points_y            String?   @db.VarChar(255)
+  name                    String?   @db.VarChar(50)
+  create_id               BigInt
+  create_time             DateTime? @db.DateTime(0)
+  update_id               BigInt?
+  update_time             DateTime? @db.DateTime(0)
+
+  @@index([image_id], map: "image_index")
+  @@index([project_id], map: "project_index")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model data_record {
+  id          BigInt    @id
+  name        String    @db.VarChar(32)
+  quantity    Int       @default(0)
+  create_id   BigInt
+  create_time DateTime  @db.DateTime(0)
+  update_id   BigInt?
+  update_time DateTime? @db.DateTime(0)
+
+  @@index([create_id], map: "idx_create_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model data_record_item {
+  id             BigInt    @id
+  data_record_id BigInt
+  project_id     BigInt
+  image_id       BigInt
+  url            String    @db.VarChar(255)
+  create_id      BigInt
+  create_time    DateTime  @db.DateTime(0)
+  update_id      BigInt?
+  update_time    DateTime? @db.DateTime(0)
+
+  @@index([data_record_id], map: "idx_data_record_id")
+  @@index([image_id], map: "idx_image_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model data_record_log {
+  id                  BigInt @id
+  data_record_id      BigInt
+  data_record_item_id BigInt
+  img_id              BigInt
+  project_id          BigInt
+  relation_img_id     BigInt
+
+  @@index([project_id], map: "idx_project_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model data_record_project_relation {
+  id             BigInt @id
+  data_record_id BigInt
+  project_id     BigInt
+
+  @@index([data_record_id], map: "idx_data_record_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model detect {
+  id               BigInt    @id
+  model_version_id BigInt?
+  project_id       BigInt?
+  file_url         String?   @db.VarChar(100)
+  status           Int?      @default(0)
+  end_time         DateTime? @db.DateTime(0)
+  file_name        String?   @db.VarChar(255)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model email_config {
+  id           BigInt   @id @default(autoincrement())
+  create_time  DateTime @default(now())
+  email_key    String?  @db.VarChar(255)
+  company_name String?  @db.VarChar(255)
+  account      String?  @db.VarChar(255)
+  password     String?  @db.VarChar(255)
+  email_host   String?  @db.VarChar(255)
+  port         Int
+  use_ssl      Boolean  @db.Bit(1)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model fun_api {
+  id           BigInt   @id @default(autoincrement())
+  create_time  DateTime
+  parent_id    Int
+  name         String?  @db.VarChar(255)
+  request_mode String?  @db.VarChar(255)
+  url          String?  @db.VarChar(255)
+  remarks      String?  @db.VarChar(255)
+  icon         String?  @db.VarChar(255)
+  category     Int
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model model_version {
+  id            BigInt    @id
+  model_version String    @db.VarChar(45)
+  number        Int
+  end_time      DateTime? @db.DateTime(0)
+  train_process Int       @default(0)
+  train_id      BigInt
+  create_time   DateTime? @db.DateTime(0)
+  status        Int?      @default(0)
+  project_id    BigInt?
+  start_date    String?   @db.VarChar(45)
+  last_date     String?   @db.VarChar(45)
+  model_url     String?   @db.VarChar(100)
+  parent_id     BigInt?
+  describe      String?   @db.VarChar(255)
+  model_name    String    @db.VarChar(100)
+  epochs        Int?
+  crr_epochs    Int?
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model point_data {
+  id                      BigInt    @id
+  project_id              BigInt
+  image_id                BigInt
+  image_batch_relation_id BigInt?
+  batch_id                BigInt?
+  type                    Int?
+  cx                      Int?
+  cy                      Int?
+  name                    String?   @db.VarChar(50)
+  create_id               BigInt
+  create_time             DateTime? @db.DateTime(0)
+  update_id               BigInt?
+  update_time             DateTime? @db.DateTime(0)
+
+  @@index([image_id], map: "idx_image_id")
+  @@index([project_id], map: "idx_project_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model project {
+  id               BigInt   @id
+  create_time      DateTime
+  project_no       String?  @db.VarChar(255)
+  project_name     String?  @db.VarChar(255)
+  config           String?  @db.LongText
+  status           Int
+  remarks          String?  @db.VarChar(255)
+  creator_id       BigInt
+  start_time       DateTime
+  last_update_time DateTime
+  end_time         DateTime
+  category         Int
+  scene_category   BigInt
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model project_ar_config {
+  id          BigInt    @id
+  value       String    @db.Text
+  project_id  BigInt
+  create_id   BigInt
+  create_time DateTime  @db.DateTime(0)
+  update_id   BigInt?
+  update_time DateTime? @db.DateTime(0)
+
+  @@index([project_id], map: "idx_project_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model project_ar_config_0902 {
+  id                    BigInt    @id
+  screensizefactor      Decimal   @db.Decimal(32, 2)
+  bundledownloadurl     String?   @db.VarChar(100)
+  darknessbluriteration Int
+  bundlestoload         String    @db.VarChar(1024)
+  shoulddarken          Int       @default(0)
+  darknessfactor        Decimal?  @db.Decimal(32, 2)
+  project_id            BigInt
+  create_id             BigInt
+  create_time           DateTime  @db.DateTime(0)
+  update_id             BigInt?
+  update_time           DateTime? @db.DateTime(0)
+
+  @@index([project_id], map: "idx_project_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model project_ar_image {
+  id          BigInt    @id
+  project_id  BigInt
+  url         String    @db.VarChar(128)
+  text        String?   @db.VarChar(3200)
+  is_valid    Boolean   @default(false)
+  create_id   BigInt
+  create_time DateTime  @db.DateTime(0)
+  update_id   BigInt?
+  update_time DateTime? @db.DateTime(0)
+
+  @@index([project_id], map: "idx_project_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model project_batch {
+  id          BigInt    @id
+  name        String    @db.VarChar(32)
+  project_id  String    @db.Char(1)
+  create_id   String    @db.VarChar(32)
+  create_time DateTime  @db.DateTime(0)
+  update_id   String?   @db.VarChar(32)
+  update_time DateTime? @db.DateTime(0)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model project_callout_config {
+  id          BigInt    @id
+  relation_id BigInt
+  name        String    @db.VarChar(32)
+  shortcuts   String?   @db.VarChar(32)
+  type        Int       @default(0)
+  level       Int       @default(1)
+  parent_id   BigInt    @default(0)
+  class_id    BigInt
+  create_id   BigInt
+  create_time DateTime  @db.DateTime(0)
+  update_id   BigInt?
+  update_time DateTime? @db.DateTime(0)
+
+  @@index([class_id], map: "idx_class_id")
+  @@index([parent_id], map: "idx_parent_id")
+  @@index([relation_id], map: "idx_relation_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model project_callout_pattern_relation {
+  id                BigInt   @id
+  callout_config_id BigInt
+  pattern_id        BigInt
+  mark_type         Int      @default(0)
+  create_time       DateTime @db.DateTime(0)
+
+  @@index([pattern_id, callout_config_id], map: "idx_pattern_id_callout_config_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model project_config {
+  id             BigInt   @id
+  create_time    DateTime
+  project_id     BigInt
+  notes_config   String?  @db.Text
+  vr_config      String?  @db.Text
+  save_config    String?  @db.Text
+  export_config  String?  @db.Text
+  other_config   String?  @db.Text
+  via_settings   String?  @db.Text
+  via_attributes String?  @db.Text
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model project_image {
+  id            BigInt    @id
+  create_time   DateTime  @db.DateTime(0)
+  project_id    BigInt
+  file_url      String?   @db.VarChar(255)
+  file_name     String?   @db.VarChar(255)
+  new_file_name String?   @db.VarChar(255)
+  size          BigInt
+  status        Int
+  complete_time DateTime? @db.DateTime(0)
+  user_id       BigInt?
+  source_video  String?   @db.VarChar(255)
+  height        Int?
+  width         Int?
+
+  @@index([project_id], map: "idx_project_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model project_image_batch_relation {
+  id          BigInt   @id
+  batch_id    BigInt
+  image_id    BigInt
+  mark_type   Int      @default(0)
+  create_id   String   @db.VarChar(32)
+  create_time DateTime @db.DateTime(0)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model project_mark_data {
+  id            BigInt    @id
+  create_time   DateTime
+  project_id    BigInt
+  data          String?   @db.LongText
+  file_url      String?   @db.VarChar(255)
+  file_name     String?   @db.VarChar(255)
+  new_file_name String?   @db.VarChar(255)
+  size          BigInt
+  status        Int
+  tag           String?   @db.VarChar(255)
+  source_video  String?   @db.VarChar(255)
+  complete_time DateTime?
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model project_note {
+  id          BigInt   @id
+  create_time DateTime
+  project_id  BigInt
+  name        String?  @db.VarChar(255)
+  type        String?  @db.VarChar(255)
+  describe    String?  @db.VarChar(255)
+  text_value  String?  @db.VarChar(255)
+  shortcuts   String?  @db.VarChar(255)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model project_note_attr {
+  id          BigInt   @id
+  create_time DateTime
+  project_id  BigInt
+  notes_id    BigInt
+  text        String?  @db.VarChar(255)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model project_scene {
+  id          BigInt   @id
+  create_time DateTime
+  name        String?  @db.VarChar(255)
+  link_url    String?  @db.VarChar(255)
+  icon        String?  @db.VarChar(255)
+  status      Int
+  remarks     String?  @db.VarChar(255)
+  update_time DateTime
+  notes       String?  @db.LongText
+  config      String?  @db.LongText
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model project_tag {
+  id          BigInt    @id
+  project_id  BigInt
+  tag         String    @db.VarChar(30)
+  create_time DateTime  @db.DateTime(0)
+  update_time DateTime? @db.DateTime(0)
+  create_id   BigInt
+  update_id   BigInt?
+
+  @@index([tag], map: "idx_project_id") // HOTFIX: BUG ->> It should be mapped as idx_tag_id
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model project_user {
+  id          BigInt   @id
+  create_time DateTime
+  project_id  BigInt
+  user_id     BigInt
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model project_vr_config {
+  id          BigInt    @id
+  value       String    @db.Text
+  project_id  BigInt
+  create_id   BigInt
+  create_time DateTime  @db.DateTime(0)
+  update_id   BigInt?
+  update_time DateTime? @db.DateTime(0)
+
+  @@index([project_id], map: "idx_project_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model project_vr_config_0902 {
+  id                  BigInt    @id
+  capturedepth        Int
+  capturergb          Int
+  capturebbox         Int
+  decalsize           Decimal   @db.Decimal(32, 2)
+  positionchangeunits Int       @default(0)
+  rotationchangeunits Int
+  changepercent       Int
+  changefrequency     Int
+  randomcols          String    @db.VarChar(1024)
+  trays               Int
+  randomtrays         Int
+  bagtype             Int       @default(0)
+  decalpercent        Int
+  trayscalefactor     Decimal   @db.Decimal(32, 2)
+  project_id          BigInt
+  create_id           BigInt
+  create_time         DateTime  @db.DateTime(0)
+  update_id           BigInt?
+  update_time         DateTime? @db.DateTime(0)
+
+  @@index([project_id], map: "idx_project_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model rect_data {
+  id                      BigInt    @id
+  project_id              BigInt
+  image_id                BigInt
+  image_batch_relation_id BigInt?
+  batch_id                BigInt?
+  x                       Int
+  y                       Int
+  height                  Int
+  width                   Int
+  type                    Boolean   @default(false)
+  create_id               BigInt
+  create_time             DateTime  @db.DateTime(0)
+  update_id               BigInt?
+  update_time             DateTime? @db.DateTime(0)
+
+  @@index([image_id], map: "idx_image_id")
+  @@index([project_id], map: "idx_project_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model role {
+  id          BigInt   @id @default(autoincrement())
+  create_time DateTime
+  name        String?  @db.VarChar(255)
+  parent_id   BigInt
+  order_num   Int
+  remarks     String?  @db.VarChar(255)
+  create_id   BigInt
+  status      Int
+  category_id Int
+  tag         String?  @db.VarChar(255)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model role_category {
+  Id         BigInt   @id @default(autoincrement())
+  CreateTime DateTime
+  Name       String?  @db.VarChar(255)
+  Remarks    String?  @db.VarChar(255)
+  IsDeleted  Int
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model role_fun_api {
+  id          BigInt   @id @default(autoincrement())
+  create_time DateTime
+  role_id     BigInt
+  fun_api_id  BigInt
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model role_user {
+  id          BigInt   @id @default(autoincrement())
+  create_time DateTime
+  role_id     BigInt
+  user_id     BigInt
+  category_id BigInt
+  business_id BigInt
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model swagger_config {
+  id          BigInt   @id @default(autoincrement())
+  prefix      String?  @db.VarChar(255)
+  name        String?  @db.VarChar(255)
+  url         String?  @db.VarChar(255)
+  status      Int
+  create_time DateTime @default(dbgenerated("'2021-10-20 09:54:22.930'"))
+  CreateTime  DateTime @default(dbgenerated("'2022-03-14 19:08:53.941'"))
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model system_config {
+  id          BigInt   @id
+  create_time DateTime
+  code        String?  @db.VarChar(255)
+  val         String?  @db.LongText
+  remarks     String?  @db.VarChar(255)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model team {
+  Id          BigInt   @id @default(autoincrement())
+  create_time DateTime
+  no          String?  @db.VarChar(255)
+  name        String?  @db.VarChar(255)
+  create_id   BigInt
+  remarks     String?  @db.VarChar(255)
+  status      Int
+  trade_name  String?  @db.VarChar(255)
+  team_size   String?  @db.VarChar(255)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model team_invite_code {
+  id          BigInt   @id @default(autoincrement())
+  create_time DateTime
+  team_id     BigInt
+  category    BigInt?
+  code        String?  @db.VarChar(255)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model team_user {
+  id          BigInt   @id @default(autoincrement())
+  create_time DateTime
+  team_id     BigInt
+  user_id     BigInt
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model train {
+  id                 BigInt   @id
+  train_project_name String   @db.VarChar(45)
+  algorithm_name     String   @db.VarChar(45)
+  create_time        DateTime @db.DateTime(0)
+  status             Int?     @default(0)
+  create_id          BigInt
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model train_config {
+  id               BigInt    @id
+  model_version_id BigInt
+  epochs           Int?
+  batch_size       Int?
+  imgsz            Int?
+  resume           Int?
+  adam             Int?
+  lr0              String?   @db.VarChar(45)
+  lrf              String?   @db.VarChar(45)
+  momentum         String?   @db.VarChar(45)
+  weight_decay     String?   @db.VarChar(45)
+  warmup_epochs    String?   @db.VarChar(45)
+  warmup_momentum  String?   @db.VarChar(45)
+  warmup_bias_lr   String?   @db.VarChar(45)
+  hsv_h            String?   @db.VarChar(45)
+  hsv_s            String?   @db.VarChar(45)
+  hsv_v            String?   @db.VarChar(45)
+  degrees          String?   @db.VarChar(45)
+  translate        String?   @db.VarChar(45)
+  scale            String?   @db.VarChar(45)
+  shear            String?   @db.VarChar(45)
+  perspective      String?   @db.VarChar(45)
+  flipud           String?   @db.VarChar(45)
+  fliplr           String?   @db.VarChar(45)
+  data_record_name String?   @db.VarChar(1024)
+  data_record_ids  String?   @db.Text
+  create_time      DateTime? @db.DateTime(0)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model users {
+  id          BigInt   @id @default(autoincrement())
+  create_time DateTime @default(now())
+  account     String?  @db.VarChar(255)
+  password    String?  @db.VarChar(255)
+  email       String?  @db.VarChar(255)
+  tel_num     String?  @db.VarChar(255)
+  true_name   String?  @db.VarChar(255)
+  nick_name   String?  @db.VarChar(255)
+  status      Int      @default(1)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model users_copy1 {
+  id          BigInt   @id
+  create_time DateTime
+  account     String?  @db.VarChar(255)
+  password    String?  @db.VarChar(255)
+  email       String?  @db.VarChar(255)
+  tel_num     String?  @db.VarChar(255)
+  true_name   String?  @db.VarChar(255)
+  nick_name   String?  @db.VarChar(255)
+  status      Int      @default(1)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model verification_code {
+  Id         BigInt    @id @default(autoincrement())
+  CreateTime DateTime
+  Category   Int
+  Account    String?   @db.VarChar(255)
+  Code       String?   @db.VarChar(255)
+  UseTime    DateTime?
+  Content    String?   @db.VarChar(255)
+}
