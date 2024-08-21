@@ -16,7 +16,7 @@ model ar_gather_data {
 }
 
 model baggagetrace {
-  id             BigInt    @id
+  id             BigInt    @id @default(autoincrement())
   baggage_id     BigInt?
   tag10_id       String?   @db.VarChar(10)
   source_id      String?   @db.VarChar(10)
@@ -27,23 +27,22 @@ model baggagetrace {
   uuid           String?   @db.VarChar(255)
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model config_template {
-  id          BigInt    @id
+  id          BigInt    @id @default(autoincrement())
   scene_id    BigInt
   type        Int       @default(10) @db.TinyInt
   value       String    @db.Text
   create_id   BigInt
-  create_time DateTime  @db.DateTime(0)
+  create_time DateTime  @default(now()) @db.DateTime(0)
   update_id   BigInt?
   update_time DateTime? @db.DateTime(0)
 
   @@index([scene_id], map: "idx_scene_id")
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model cut_data {
-  id                      BigInt    @id
+  id                      BigInt    @id @default(autoincrement())
+  project                 project   @relation(fields: [project_id], references: [id])
   project_id              BigInt
   image_id                BigInt
   image_batch_relation_id BigInt?
@@ -53,7 +52,7 @@ model cut_data {
   all_points_y            String?   @db.VarChar(255)
   name                    String?   @db.VarChar(50)
   create_id               BigInt
-  create_time             DateTime? @db.DateTime(0)
+  create_time             DateTime? @default(now()) @db.DateTime(0)
   update_id               BigInt?
   update_time             DateTime? @db.DateTime(0)
 
@@ -61,28 +60,27 @@ model cut_data {
   @@index([project_id], map: "project_index")
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model data_record {
-  id          BigInt    @id
+  id          BigInt    @id @default(autoincrement())
   name        String    @db.VarChar(32)
   quantity    Int       @default(0)
   create_id   BigInt
-  create_time DateTime  @db.DateTime(0)
+  create_time DateTime  @default(now()) @db.DateTime(0)
   update_id   BigInt?
   update_time DateTime? @db.DateTime(0)
 
   @@index([create_id], map: "idx_create_id")
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model data_record_item {
-  id             BigInt    @id
+  id             BigInt    @id @default(autoincrement())
   data_record_id BigInt
   project_id     BigInt
+  project        project   @relation(fields: [project_id], references: [id])
   image_id       BigInt
   url            String    @db.VarChar(255)
   create_id      BigInt
-  create_time    DateTime  @db.DateTime(0)
+  create_time    DateTime  @default(now()) @db.DateTime(0)
   update_id      BigInt?
   update_time    DateTime? @db.DateTime(0)
 
@@ -90,39 +88,38 @@ model data_record_item {
   @@index([image_id], map: "idx_image_id")
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model data_record_log {
-  id                  BigInt @id
+  id                  BigInt  @id
   data_record_id      BigInt
   data_record_item_id BigInt
   img_id              BigInt
   project_id          BigInt
+  project             project @relation(fields: [project_id], references: [id])
   relation_img_id     BigInt
 
   @@index([project_id], map: "idx_project_id")
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model data_record_project_relation {
-  id             BigInt @id
+  id             BigInt  @id
   data_record_id BigInt
   project_id     BigInt
+  project        project @relation(fields: [project_id], references: [id])
 
   @@index([data_record_id], map: "idx_data_record_id")
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model detect {
-  id               BigInt    @id
+  id               BigInt    @id @default(autoincrement())
   model_version_id BigInt?
   project_id       BigInt?
+  project          project?  @relation(fields: [project_id], references: [id])
   file_url         String?   @db.VarChar(100)
   status           Int?      @default(0)
   end_time         DateTime? @db.DateTime(0)
   file_name        String?   @db.VarChar(255)
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model email_config {
   id           BigInt   @id @default(autoincrement())
   create_time  DateTime @default(now())
@@ -135,10 +132,9 @@ model email_config {
   use_ssl      Boolean  @db.Bit(1)
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model fun_api {
   id           BigInt   @id @default(autoincrement())
-  create_time  DateTime
+  create_time  DateTime @default(now())
   parent_id    Int
   name         String?  @db.VarChar(255)
   request_mode String?  @db.VarChar(255)
@@ -148,17 +144,17 @@ model fun_api {
   category     Int
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model model_version {
-  id            BigInt    @id
+  id            BigInt    @id @default(autoincrement())
   model_version String    @db.VarChar(45)
   number        Int
   end_time      DateTime? @db.DateTime(0)
   train_process Int       @default(0)
   train_id      BigInt
-  create_time   DateTime? @db.DateTime(0)
+  create_time   DateTime? @default(now()) @db.DateTime(0)
   status        Int?      @default(0)
   project_id    BigInt?
+  project       project?  @relation(fields: [project_id], references: [id])
   start_date    String?   @db.VarChar(45)
   last_date     String?   @db.VarChar(45)
   model_url     String?   @db.VarChar(100)
@@ -169,10 +165,10 @@ model model_version {
   crr_epochs    Int?
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model point_data {
-  id                      BigInt    @id
+  id                      BigInt    @id @default(autoincrement())
   project_id              BigInt
+  project                 project   @relation(fields: [project_id], references: [id])
   image_id                BigInt
   image_batch_relation_id BigInt?
   batch_id                BigInt?
@@ -181,7 +177,7 @@ model point_data {
   cy                      Int?
   name                    String?   @db.VarChar(50)
   create_id               BigInt
-  create_time             DateTime? @db.DateTime(0)
+  create_time             DateTime? @default(now()) @db.DateTime(0)
   update_id               BigInt?
   update_time             DateTime? @db.DateTime(0)
 
@@ -189,39 +185,58 @@ model point_data {
   @@index([project_id], map: "idx_project_id")
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model project {
-  id               BigInt   @id
-  create_time      DateTime
-  project_no       String?  @db.VarChar(255)
-  project_name     String?  @db.VarChar(255)
-  config           String?  @db.LongText
-  status           Int
-  remarks          String?  @db.VarChar(255)
-  creator_id       BigInt
-  start_time       DateTime
-  last_update_time DateTime
-  end_time         DateTime
-  category         Int
-  scene_category   BigInt
+  id                           BigInt                         @id @default(autoincrement())
+  create_time                  DateTime                       @default(now())
+  project_no                   String?                        @db.VarChar(255)
+  project_name                 String?                        @db.VarChar(255)
+  config                       String?                        @db.LongText
+  status                       Int
+  remarks                      String?                        @db.VarChar(255)
+  creator_id                   BigInt
+  start_time                   DateTime                       @default(now())
+  last_update_time             DateTime                       @default(now()) @updatedAt
+  end_time                     DateTime                       @default(now())
+  category                     Int
+  scene_category               BigInt
+  cut_data                     cut_data[]
+  data_record_item             data_record_item[]
+  data_record_log              data_record_log[]
+  data_record_project_relation data_record_project_relation[]
+  detect                       detect[]
+  model_version                model_version[]
+  point_data                   point_data[]
+  project_ar_config            project_ar_config[]
+  project_ar_config_0902       project_ar_config_0902[]
+  project_ar_image             project_ar_image[]
+  project_batch                project_batch[]
+  project_config               project_config[]
+  project_image                project_image[]
+  project_mark_data            project_mark_data[]
+  project_note                 project_note[]
+  project_note_attr            project_note_attr[]
+  project_tag                  project_tag[]
+  project_user                 project_user[]
+  project_vr_config            project_vr_config[]
+  project_vr_config_0902       project_vr_config_0902[]
+  rect_data                    rect_data[]
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model project_ar_config {
-  id          BigInt    @id
+  id          BigInt    @id @default(autoincrement())
   value       String    @db.Text
   project_id  BigInt
+  project     project   @relation(fields: [project_id], references: [id])
   create_id   BigInt
-  create_time DateTime  @db.DateTime(0)
+  create_time DateTime  @default(now()) @db.DateTime(0)
   update_id   BigInt?
   update_time DateTime? @db.DateTime(0)
 
   @@index([project_id], map: "idx_project_id")
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model project_ar_config_0902 {
-  id                    BigInt    @id
+  id                    BigInt    @id @default(autoincrement())
   screensizefactor      Decimal   @db.Decimal(32, 2)
   bundledownloadurl     String?   @db.VarChar(100)
   darknessbluriteration Int
@@ -229,43 +244,43 @@ model project_ar_config_0902 {
   shoulddarken          Int       @default(0)
   darknessfactor        Decimal?  @db.Decimal(32, 2)
   project_id            BigInt
+  project               project   @relation(fields: [project_id], references: [id])
   create_id             BigInt
-  create_time           DateTime  @db.DateTime(0)
+  create_time           DateTime  @default(now()) @db.DateTime(0)
   update_id             BigInt?
   update_time           DateTime? @db.DateTime(0)
 
   @@index([project_id], map: "idx_project_id")
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model project_ar_image {
-  id          BigInt    @id
+  id          BigInt    @id @default(autoincrement())
   project_id  BigInt
+  project     project   @relation(fields: [project_id], references: [id])
   url         String    @db.VarChar(128)
   text        String?   @db.VarChar(3200)
   is_valid    Boolean   @default(false)
   create_id   BigInt
-  create_time DateTime  @db.DateTime(0)
+  create_time DateTime  @default(now()) @db.DateTime(0)
   update_id   BigInt?
   update_time DateTime? @db.DateTime(0)
 
   @@index([project_id], map: "idx_project_id")
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model project_batch {
-  id          BigInt    @id
+  id          BigInt    @id @default(autoincrement())
   name        String    @db.VarChar(32)
-  project_id  String    @db.Char(1)
+  project_id  BigInt
+  project     project   @relation(fields: [project_id], references: [id])
   create_id   String    @db.VarChar(32)
-  create_time DateTime  @db.DateTime(0)
+  create_time DateTime  @default(now()) @db.DateTime(0)
   update_id   String?   @db.VarChar(32)
   update_time DateTime? @db.DateTime(0)
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model project_callout_config {
-  id          BigInt    @id
+  id          BigInt    @id @default(autoincrement())
   relation_id BigInt
   name        String    @db.VarChar(32)
   shortcuts   String?   @db.VarChar(32)
@@ -274,7 +289,7 @@ model project_callout_config {
   parent_id   BigInt    @default(0)
   class_id    BigInt
   create_id   BigInt
-  create_time DateTime  @db.DateTime(0)
+  create_time DateTime  @default(now()) @db.DateTime(0)
   update_id   BigInt?
   update_time DateTime? @db.DateTime(0)
 
@@ -283,22 +298,21 @@ model project_callout_config {
   @@index([relation_id], map: "idx_relation_id")
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model project_callout_pattern_relation {
-  id                BigInt   @id
+  id                BigInt   @id @default(autoincrement())
   callout_config_id BigInt
   pattern_id        BigInt
   mark_type         Int      @default(0)
-  create_time       DateTime @db.DateTime(0)
+  create_time       DateTime @default(now()) @db.DateTime(0)
 
   @@index([pattern_id, callout_config_id], map: "idx_pattern_id_callout_config_id")
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model project_config {
-  id             BigInt   @id
-  create_time    DateTime
+  id             BigInt   @id @default(autoincrement())
+  create_time    DateTime @default(now())
   project_id     BigInt
+  project        project  @relation(fields: [project_id], references: [id])
   notes_config   String?  @db.Text
   vr_config      String?  @db.Text
   save_config    String?  @db.Text
@@ -308,11 +322,11 @@ model project_config {
   via_attributes String?  @db.Text
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model project_image {
-  id            BigInt    @id
-  create_time   DateTime  @db.DateTime(0)
+  id            BigInt    @id @default(autoincrement())
+  create_time   DateTime  @default(now()) @db.DateTime(0)
   project_id    BigInt
+  project       project   @relation(fields: [project_id], references: [id])
   file_url      String?   @db.VarChar(255)
   file_name     String?   @db.VarChar(255)
   new_file_name String?   @db.VarChar(255)
@@ -327,21 +341,20 @@ model project_image {
   @@index([project_id], map: "idx_project_id")
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model project_image_batch_relation {
-  id          BigInt   @id
+  id          BigInt   @id @default(autoincrement())
   batch_id    BigInt
   image_id    BigInt
   mark_type   Int      @default(0)
   create_id   String   @db.VarChar(32)
-  create_time DateTime @db.DateTime(0)
+  create_time DateTime @default(now()) @db.DateTime(0)
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model project_mark_data {
-  id            BigInt    @id
-  create_time   DateTime
+  id            BigInt    @id @default(autoincrement())
+  create_time   DateTime  @default(now())
   project_id    BigInt
+  project       project   @relation(fields: [project_id], references: [id])
   data          String?   @db.LongText
   file_url      String?   @db.VarChar(255)
   file_name     String?   @db.VarChar(255)
@@ -353,11 +366,11 @@ model project_mark_data {
   complete_time DateTime?
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model project_note {
-  id          BigInt   @id
-  create_time DateTime
+  id          BigInt   @id @default(autoincrement())
+  create_time DateTime @default(now())
   project_id  BigInt
+  project     project  @relation(fields: [project_id], references: [id])
   name        String?  @db.VarChar(255)
   type        String?  @db.VarChar(255)
   describe    String?  @db.VarChar(255)
@@ -365,19 +378,18 @@ model project_note {
   shortcuts   String?  @db.VarChar(255)
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model project_note_attr {
-  id          BigInt   @id
-  create_time DateTime
+  id          BigInt   @id @default(autoincrement())
+  create_time DateTime @default(now())
   project_id  BigInt
+  project     project  @relation(fields: [project_id], references: [id])
   notes_id    BigInt
   text        String?  @db.VarChar(255)
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model project_scene {
-  id          BigInt   @id
-  create_time DateTime
+  id          BigInt   @id @default(autoincrement())
+  create_time DateTime @default(now())
   name        String?  @db.VarChar(255)
   link_url    String?  @db.VarChar(255)
   icon        String?  @db.VarChar(255)
@@ -388,12 +400,12 @@ model project_scene {
   config      String?  @db.LongText
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model project_tag {
-  id          BigInt    @id
+  id          BigInt    @id @default(autoincrement())
   project_id  BigInt
+  project     project   @relation(fields: [project_id], references: [id])
   tag         String    @db.VarChar(30)
-  create_time DateTime  @db.DateTime(0)
+  create_time DateTime  @default(now()) @db.DateTime(0)
   update_time DateTime? @db.DateTime(0)
   create_id   BigInt
   update_id   BigInt?
@@ -401,30 +413,29 @@ model project_tag {
   @@index([tag], map: "idx_project_id") // HOTFIX: BUG ->> It should be mapped as idx_tag_id
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model project_user {
-  id          BigInt   @id
-  create_time DateTime
+  id          BigInt   @id @default(autoincrement())
+  create_time DateTime @default(now())
   project_id  BigInt
+  project     project  @relation(fields: [project_id], references: [id])
   user_id     BigInt
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model project_vr_config {
-  id          BigInt    @id
+  id          BigInt    @id @default(autoincrement())
   value       String    @db.Text
   project_id  BigInt
+  project     project   @relation(fields: [project_id], references: [id])
   create_id   BigInt
-  create_time DateTime  @db.DateTime(0)
+  create_time DateTime  @default(now()) @db.DateTime(0)
   update_id   BigInt?
   update_time DateTime? @db.DateTime(0)
 
   @@index([project_id], map: "idx_project_id")
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model project_vr_config_0902 {
-  id                  BigInt    @id
+  id                  BigInt    @id @default(autoincrement())
   capturedepth        Int
   capturergb          Int
   capturebbox         Int
@@ -440,18 +451,19 @@ model project_vr_config_0902 {
   decalpercent        Int
   trayscalefactor     Decimal   @db.Decimal(32, 2)
   project_id          BigInt
+  project             project   @relation(fields: [project_id], references: [id])
   create_id           BigInt
-  create_time         DateTime  @db.DateTime(0)
+  create_time         DateTime  @default(now()) @db.DateTime(0)
   update_id           BigInt?
   update_time         DateTime? @db.DateTime(0)
 
   @@index([project_id], map: "idx_project_id")
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model rect_data {
-  id                      BigInt    @id
+  id                      BigInt    @id @default(autoincrement())
   project_id              BigInt
+  project                 project   @relation(fields: [project_id], references: [id])
   image_id                BigInt
   image_batch_relation_id BigInt?
   batch_id                BigInt?
@@ -461,7 +473,7 @@ model rect_data {
   width                   Int
   type                    Boolean   @default(false)
   create_id               BigInt
-  create_time             DateTime  @db.DateTime(0)
+  create_time             DateTime  @default(now()) @db.DateTime(0)
   update_id               BigInt?
   update_time             DateTime? @db.DateTime(0)
 
@@ -469,10 +481,9 @@ model rect_data {
   @@index([project_id], map: "idx_project_id")
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model role {
   id          BigInt   @id @default(autoincrement())
-  create_time DateTime
+  create_time DateTime @default(now())
   name        String?  @db.VarChar(255)
   parent_id   BigInt
   order_num   Int
@@ -483,7 +494,6 @@ model role {
   tag         String?  @db.VarChar(255)
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model role_category {
   Id         BigInt   @id @default(autoincrement())
   CreateTime DateTime
@@ -492,7 +502,6 @@ model role_category {
   IsDeleted  Int
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model role_fun_api {
   id          BigInt   @id @default(autoincrement())
   create_time DateTime
@@ -500,17 +509,15 @@ model role_fun_api {
   fun_api_id  BigInt
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model role_user {
   id          BigInt   @id @default(autoincrement())
-  create_time DateTime
+  create_time DateTime @default(now())
   role_id     BigInt
   user_id     BigInt
   category_id BigInt
   business_id BigInt
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model swagger_config {
   id          BigInt   @id @default(autoincrement())
   prefix      String?  @db.VarChar(255)
@@ -521,19 +528,17 @@ model swagger_config {
   CreateTime  DateTime @default(dbgenerated("'2022-03-14 19:08:53.941'"))
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model system_config {
-  id          BigInt   @id
-  create_time DateTime
+  id          BigInt   @id @default(autoincrement())
+  create_time DateTime @default(now())
   code        String?  @db.VarChar(255)
   val         String?  @db.LongText
   remarks     String?  @db.VarChar(255)
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model team {
   Id          BigInt   @id @default(autoincrement())
-  create_time DateTime
+  create_time DateTime @default(now())
   no          String?  @db.VarChar(255)
   name        String?  @db.VarChar(255)
   create_id   BigInt
@@ -543,7 +548,6 @@ model team {
   team_size   String?  @db.VarChar(255)
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model team_invite_code {
   id          BigInt   @id @default(autoincrement())
   create_time DateTime
@@ -552,27 +556,24 @@ model team_invite_code {
   code        String?  @db.VarChar(255)
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model team_user {
   id          BigInt   @id @default(autoincrement())
-  create_time DateTime
+  create_time DateTime @default(now())
   team_id     BigInt
   user_id     BigInt
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model train {
-  id                 BigInt   @id
+  id                 BigInt   @id @default(autoincrement())
   train_project_name String   @db.VarChar(45)
   algorithm_name     String   @db.VarChar(45)
-  create_time        DateTime @db.DateTime(0)
+  create_time        DateTime @default(now()) @db.DateTime(0)
   status             Int?     @default(0)
   create_id          BigInt
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model train_config {
-  id               BigInt    @id
+  id               BigInt    @id @default(autoincrement())
   model_version_id BigInt
   epochs           Int?
   batch_size       Int?
@@ -598,10 +599,9 @@ model train_config {
   fliplr           String?   @db.VarChar(45)
   data_record_name String?   @db.VarChar(1024)
   data_record_ids  String?   @db.Text
-  create_time      DateTime? @db.DateTime(0)
+  create_time      DateTime? @default(now()) @db.DateTime(0)
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model users {
   id          BigInt   @id @default(autoincrement())
   create_time DateTime @default(now())
@@ -614,10 +614,9 @@ model users {
   status      Int      @default(1)
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model users_copy1 {
-  id          BigInt   @id
-  create_time DateTime
+  id          BigInt   @id @default(autoincrement())
+  create_time DateTime @default(now())
   account     String?  @db.VarChar(255)
   password    String?  @db.VarChar(255)
   email       String?  @db.VarChar(255)
@@ -627,7 +626,6 @@ model users_copy1 {
   status      Int      @default(1)
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model verification_code {
   Id         BigInt    @id @default(autoincrement())
   CreateTime DateTime

@@ -15,7 +15,7 @@ export class Jwt_Auth_Gurad extends AuthGuard('jwt') {
     const { user: jwt_decrypted_payload } = context.switchToHttp().getRequest();
     const user = await this.prisma_service.users.findFirst({
       where: {
-        id: BigInt(jwt_decrypted_payload.id),
+        id: jwt_decrypted_payload.id,
       },
     });
     if (!user) throw new NotFoundException({ message: 'User not found' });

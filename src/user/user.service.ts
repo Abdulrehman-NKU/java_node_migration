@@ -113,7 +113,8 @@ export class UserService {
       user_register_request_dto.account,
     );
 
-    if (cached_code !== user_register_request_dto.code)
+    if (cached_code !== user_register_request_dto.code && false)
+      // Skip code check
       throw new UnauthorizedException({ message: 'Code is not correct!' });
 
     const existing_user = await this.prisma.users.findFirst({

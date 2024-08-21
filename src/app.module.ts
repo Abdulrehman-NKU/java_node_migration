@@ -11,6 +11,11 @@ import { EmailConfigModule } from './email_config/email_config.module';
 import { VerificationCodeModule } from './verification_code/verification_code.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { EmailConfigService } from './email_config/email_config.service';
+import { MarkModule } from './mark/mark.module';
+import { ProjectModule } from './project/project.module';
+import { ProjectConfigModule } from './project/project_config/project_config.module';
+import { ProjectUserModule } from './project/project_user/project_user.module';
+import { ProjectSceneModule } from './project/project_scene/project_scene.module';
 
 @Module({
   imports: [
@@ -43,6 +48,8 @@ import { EmailConfigService } from './email_config/email_config.service';
     UserRoleModule,
     EmailConfigModule,
     VerificationCodeModule,
+    MarkModule,
+    ProjectModule,
   ],
   controllers: [AppController],
   providers: [AppService],

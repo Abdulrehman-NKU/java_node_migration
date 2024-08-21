@@ -11,7 +11,7 @@ CREATE TABLE `ar_gather_data` (
 
 -- CreateTable
 CREATE TABLE `baggagetrace` (
-    `id` BIGINT NOT NULL,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
     `baggage_id` BIGINT NULL,
     `tag10_id` VARCHAR(10) NULL,
     `source_id` VARCHAR(10) NULL,
@@ -26,12 +26,12 @@ CREATE TABLE `baggagetrace` (
 
 -- CreateTable
 CREATE TABLE `config_template` (
-    `id` BIGINT NOT NULL,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
     `scene_id` BIGINT NOT NULL,
     `type` TINYINT NOT NULL DEFAULT 10,
     `value` TEXT NOT NULL,
     `create_id` BIGINT NOT NULL,
-    `create_time` DATETIME(0) NOT NULL,
+    `create_time` DATETIME(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
     `update_id` BIGINT NULL,
     `update_time` DATETIME(0) NULL,
 
@@ -41,7 +41,7 @@ CREATE TABLE `config_template` (
 
 -- CreateTable
 CREATE TABLE `cut_data` (
-    `id` BIGINT NOT NULL,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
     `project_id` BIGINT NOT NULL,
     `image_id` BIGINT NOT NULL,
     `image_batch_relation_id` BIGINT NULL,
@@ -51,7 +51,7 @@ CREATE TABLE `cut_data` (
     `all_points_y` VARCHAR(255) NULL,
     `name` VARCHAR(50) NULL,
     `create_id` BIGINT NOT NULL,
-    `create_time` DATETIME(0) NULL,
+    `create_time` DATETIME(0) NULL DEFAULT CURRENT_TIMESTAMP(0),
     `update_id` BIGINT NULL,
     `update_time` DATETIME(0) NULL,
 
@@ -62,11 +62,11 @@ CREATE TABLE `cut_data` (
 
 -- CreateTable
 CREATE TABLE `data_record` (
-    `id` BIGINT NOT NULL,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(32) NOT NULL,
     `quantity` INTEGER NOT NULL DEFAULT 0,
     `create_id` BIGINT NOT NULL,
-    `create_time` DATETIME(0) NOT NULL,
+    `create_time` DATETIME(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
     `update_id` BIGINT NULL,
     `update_time` DATETIME(0) NULL,
 
@@ -76,13 +76,13 @@ CREATE TABLE `data_record` (
 
 -- CreateTable
 CREATE TABLE `data_record_item` (
-    `id` BIGINT NOT NULL,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
     `data_record_id` BIGINT NOT NULL,
     `project_id` BIGINT NOT NULL,
     `image_id` BIGINT NOT NULL,
     `url` VARCHAR(255) NOT NULL,
     `create_id` BIGINT NOT NULL,
-    `create_time` DATETIME(0) NOT NULL,
+    `create_time` DATETIME(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
     `update_id` BIGINT NULL,
     `update_time` DATETIME(0) NULL,
 
@@ -116,7 +116,7 @@ CREATE TABLE `data_record_project_relation` (
 
 -- CreateTable
 CREATE TABLE `detect` (
-    `id` BIGINT NOT NULL,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
     `model_version_id` BIGINT NULL,
     `project_id` BIGINT NULL,
     `file_url` VARCHAR(100) NULL,
@@ -129,8 +129,8 @@ CREATE TABLE `detect` (
 
 -- CreateTable
 CREATE TABLE `email_config` (
-    `id` BIGINT NOT NULL,
-    `create_time` DATETIME(3) NOT NULL,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `create_time` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `email_key` VARCHAR(255) NULL,
     `company_name` VARCHAR(255) NULL,
     `account` VARCHAR(255) NULL,
@@ -145,7 +145,7 @@ CREATE TABLE `email_config` (
 -- CreateTable
 CREATE TABLE `fun_api` (
     `id` BIGINT NOT NULL AUTO_INCREMENT,
-    `create_time` DATETIME(3) NOT NULL,
+    `create_time` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `parent_id` INTEGER NOT NULL,
     `name` VARCHAR(255) NULL,
     `request_mode` VARCHAR(255) NULL,
@@ -159,13 +159,13 @@ CREATE TABLE `fun_api` (
 
 -- CreateTable
 CREATE TABLE `model_version` (
-    `id` BIGINT NOT NULL,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
     `model_version` VARCHAR(45) NOT NULL,
     `number` INTEGER NOT NULL,
     `end_time` DATETIME(0) NULL,
     `train_process` INTEGER NOT NULL DEFAULT 0,
     `train_id` BIGINT NOT NULL,
-    `create_time` DATETIME(0) NULL,
+    `create_time` DATETIME(0) NULL DEFAULT CURRENT_TIMESTAMP(0),
     `status` INTEGER NULL DEFAULT 0,
     `project_id` BIGINT NULL,
     `start_date` VARCHAR(45) NULL,
@@ -182,7 +182,7 @@ CREATE TABLE `model_version` (
 
 -- CreateTable
 CREATE TABLE `point_data` (
-    `id` BIGINT NOT NULL,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
     `project_id` BIGINT NOT NULL,
     `image_id` BIGINT NOT NULL,
     `image_batch_relation_id` BIGINT NULL,
@@ -192,7 +192,7 @@ CREATE TABLE `point_data` (
     `cy` INTEGER NULL,
     `name` VARCHAR(50) NULL,
     `create_id` BIGINT NOT NULL,
-    `create_time` DATETIME(0) NULL,
+    `create_time` DATETIME(0) NULL DEFAULT CURRENT_TIMESTAMP(0),
     `update_id` BIGINT NULL,
     `update_time` DATETIME(0) NULL,
 
@@ -203,17 +203,17 @@ CREATE TABLE `point_data` (
 
 -- CreateTable
 CREATE TABLE `project` (
-    `id` BIGINT NOT NULL,
-    `create_time` DATETIME(3) NOT NULL,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `create_time` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `project_no` VARCHAR(255) NULL,
     `project_name` VARCHAR(255) NULL,
     `config` LONGTEXT NULL,
     `status` INTEGER NOT NULL,
     `remarks` VARCHAR(255) NULL,
     `creator_id` BIGINT NOT NULL,
-    `start_time` DATETIME(3) NOT NULL,
-    `last_update_time` DATETIME(3) NOT NULL,
-    `end_time` DATETIME(3) NOT NULL,
+    `start_time` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `last_update_time` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `end_time` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `category` INTEGER NOT NULL,
     `scene_category` BIGINT NOT NULL,
 
@@ -222,11 +222,11 @@ CREATE TABLE `project` (
 
 -- CreateTable
 CREATE TABLE `project_ar_config` (
-    `id` BIGINT NOT NULL,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
     `value` TEXT NOT NULL,
     `project_id` BIGINT NOT NULL,
     `create_id` BIGINT NOT NULL,
-    `create_time` DATETIME(0) NOT NULL,
+    `create_time` DATETIME(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
     `update_id` BIGINT NULL,
     `update_time` DATETIME(0) NULL,
 
@@ -236,7 +236,7 @@ CREATE TABLE `project_ar_config` (
 
 -- CreateTable
 CREATE TABLE `project_ar_config_0902` (
-    `id` BIGINT NOT NULL,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
     `screensizefactor` DECIMAL(32, 2) NOT NULL,
     `bundledownloadurl` VARCHAR(100) NULL,
     `darknessbluriteration` INTEGER NOT NULL,
@@ -245,7 +245,7 @@ CREATE TABLE `project_ar_config_0902` (
     `darknessfactor` DECIMAL(32, 2) NULL,
     `project_id` BIGINT NOT NULL,
     `create_id` BIGINT NOT NULL,
-    `create_time` DATETIME(0) NOT NULL,
+    `create_time` DATETIME(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
     `update_id` BIGINT NULL,
     `update_time` DATETIME(0) NULL,
 
@@ -255,13 +255,13 @@ CREATE TABLE `project_ar_config_0902` (
 
 -- CreateTable
 CREATE TABLE `project_ar_image` (
-    `id` BIGINT NOT NULL,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
     `project_id` BIGINT NOT NULL,
     `url` VARCHAR(128) NOT NULL,
     `text` VARCHAR(3200) NULL,
     `is_valid` BOOLEAN NOT NULL DEFAULT false,
     `create_id` BIGINT NOT NULL,
-    `create_time` DATETIME(0) NOT NULL,
+    `create_time` DATETIME(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
     `update_id` BIGINT NULL,
     `update_time` DATETIME(0) NULL,
 
@@ -271,11 +271,11 @@ CREATE TABLE `project_ar_image` (
 
 -- CreateTable
 CREATE TABLE `project_batch` (
-    `id` BIGINT NOT NULL,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(32) NOT NULL,
     `project_id` CHAR(1) NOT NULL,
     `create_id` VARCHAR(32) NOT NULL,
-    `create_time` DATETIME(0) NOT NULL,
+    `create_time` DATETIME(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
     `update_id` VARCHAR(32) NULL,
     `update_time` DATETIME(0) NULL,
 
@@ -284,7 +284,7 @@ CREATE TABLE `project_batch` (
 
 -- CreateTable
 CREATE TABLE `project_callout_config` (
-    `id` BIGINT NOT NULL,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
     `relation_id` BIGINT NOT NULL,
     `name` VARCHAR(32) NOT NULL,
     `shortcuts` VARCHAR(32) NULL,
@@ -293,7 +293,7 @@ CREATE TABLE `project_callout_config` (
     `parent_id` BIGINT NOT NULL DEFAULT 0,
     `class_id` BIGINT NOT NULL,
     `create_id` BIGINT NOT NULL,
-    `create_time` DATETIME(0) NOT NULL,
+    `create_time` DATETIME(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
     `update_id` BIGINT NULL,
     `update_time` DATETIME(0) NULL,
 
@@ -305,11 +305,11 @@ CREATE TABLE `project_callout_config` (
 
 -- CreateTable
 CREATE TABLE `project_callout_pattern_relation` (
-    `id` BIGINT NOT NULL,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
     `callout_config_id` BIGINT NOT NULL,
     `pattern_id` BIGINT NOT NULL,
     `mark_type` INTEGER NOT NULL DEFAULT 0,
-    `create_time` DATETIME(0) NOT NULL,
+    `create_time` DATETIME(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
 
     INDEX `idx_pattern_id_callout_config_id`(`pattern_id`, `callout_config_id`),
     PRIMARY KEY (`id`)
@@ -317,8 +317,8 @@ CREATE TABLE `project_callout_pattern_relation` (
 
 -- CreateTable
 CREATE TABLE `project_config` (
-    `id` BIGINT NOT NULL,
-    `create_time` DATETIME(3) NOT NULL,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `create_time` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `project_id` BIGINT NOT NULL,
     `notes_config` TEXT NULL,
     `vr_config` TEXT NULL,
@@ -333,8 +333,8 @@ CREATE TABLE `project_config` (
 
 -- CreateTable
 CREATE TABLE `project_image` (
-    `id` BIGINT NOT NULL,
-    `create_time` DATETIME(0) NOT NULL,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `create_time` DATETIME(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
     `project_id` BIGINT NOT NULL,
     `file_url` VARCHAR(255) NULL,
     `file_name` VARCHAR(255) NULL,
@@ -353,20 +353,20 @@ CREATE TABLE `project_image` (
 
 -- CreateTable
 CREATE TABLE `project_image_batch_relation` (
-    `id` BIGINT NOT NULL,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
     `batch_id` BIGINT NOT NULL,
     `image_id` BIGINT NOT NULL,
     `mark_type` INTEGER NOT NULL DEFAULT 0,
     `create_id` VARCHAR(32) NOT NULL,
-    `create_time` DATETIME(0) NOT NULL,
+    `create_time` DATETIME(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
 CREATE TABLE `project_mark_data` (
-    `id` BIGINT NOT NULL,
-    `create_time` DATETIME(3) NOT NULL,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `create_time` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `project_id` BIGINT NOT NULL,
     `data` LONGTEXT NULL,
     `file_url` VARCHAR(255) NULL,
@@ -383,8 +383,8 @@ CREATE TABLE `project_mark_data` (
 
 -- CreateTable
 CREATE TABLE `project_note` (
-    `id` BIGINT NOT NULL,
-    `create_time` DATETIME(3) NOT NULL,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `create_time` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `project_id` BIGINT NOT NULL,
     `name` VARCHAR(255) NULL,
     `type` VARCHAR(255) NULL,
@@ -397,8 +397,8 @@ CREATE TABLE `project_note` (
 
 -- CreateTable
 CREATE TABLE `project_note_attr` (
-    `id` BIGINT NOT NULL,
-    `create_time` DATETIME(3) NOT NULL,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `create_time` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `project_id` BIGINT NOT NULL,
     `notes_id` BIGINT NOT NULL,
     `text` VARCHAR(255) NULL,
@@ -408,8 +408,8 @@ CREATE TABLE `project_note_attr` (
 
 -- CreateTable
 CREATE TABLE `project_scene` (
-    `id` BIGINT NOT NULL,
-    `create_time` DATETIME(3) NOT NULL,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `create_time` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `name` VARCHAR(255) NULL,
     `link_url` VARCHAR(255) NULL,
     `icon` VARCHAR(255) NULL,
@@ -424,10 +424,10 @@ CREATE TABLE `project_scene` (
 
 -- CreateTable
 CREATE TABLE `project_tag` (
-    `id` BIGINT NOT NULL,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
     `project_id` BIGINT NOT NULL,
     `tag` VARCHAR(30) NOT NULL,
-    `create_time` DATETIME(0) NOT NULL,
+    `create_time` DATETIME(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
     `update_time` DATETIME(0) NULL,
     `create_id` BIGINT NOT NULL,
     `update_id` BIGINT NULL,
@@ -438,8 +438,8 @@ CREATE TABLE `project_tag` (
 
 -- CreateTable
 CREATE TABLE `project_user` (
-    `id` BIGINT NOT NULL,
-    `create_time` DATETIME(3) NOT NULL,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `create_time` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `project_id` BIGINT NOT NULL,
     `user_id` BIGINT NOT NULL,
 
@@ -448,11 +448,11 @@ CREATE TABLE `project_user` (
 
 -- CreateTable
 CREATE TABLE `project_vr_config` (
-    `id` BIGINT NOT NULL,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
     `value` TEXT NOT NULL,
     `project_id` BIGINT NOT NULL,
     `create_id` BIGINT NOT NULL,
-    `create_time` DATETIME(0) NOT NULL,
+    `create_time` DATETIME(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
     `update_id` BIGINT NULL,
     `update_time` DATETIME(0) NULL,
 
@@ -462,7 +462,7 @@ CREATE TABLE `project_vr_config` (
 
 -- CreateTable
 CREATE TABLE `project_vr_config_0902` (
-    `id` BIGINT NOT NULL,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
     `capturedepth` INTEGER NOT NULL,
     `capturergb` INTEGER NOT NULL,
     `capturebbox` INTEGER NOT NULL,
@@ -479,7 +479,7 @@ CREATE TABLE `project_vr_config_0902` (
     `trayscalefactor` DECIMAL(32, 2) NOT NULL,
     `project_id` BIGINT NOT NULL,
     `create_id` BIGINT NOT NULL,
-    `create_time` DATETIME(0) NOT NULL,
+    `create_time` DATETIME(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
     `update_id` BIGINT NULL,
     `update_time` DATETIME(0) NULL,
 
@@ -489,7 +489,7 @@ CREATE TABLE `project_vr_config_0902` (
 
 -- CreateTable
 CREATE TABLE `rect_data` (
-    `id` BIGINT NOT NULL,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
     `project_id` BIGINT NOT NULL,
     `image_id` BIGINT NOT NULL,
     `image_batch_relation_id` BIGINT NULL,
@@ -500,7 +500,7 @@ CREATE TABLE `rect_data` (
     `width` INTEGER NOT NULL,
     `type` BOOLEAN NOT NULL DEFAULT false,
     `create_id` BIGINT NOT NULL,
-    `create_time` DATETIME(0) NOT NULL,
+    `create_time` DATETIME(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
     `update_id` BIGINT NULL,
     `update_time` DATETIME(0) NULL,
 
@@ -512,7 +512,7 @@ CREATE TABLE `rect_data` (
 -- CreateTable
 CREATE TABLE `role` (
     `id` BIGINT NOT NULL AUTO_INCREMENT,
-    `create_time` DATETIME(3) NOT NULL,
+    `create_time` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `name` VARCHAR(255) NULL,
     `parent_id` BIGINT NOT NULL,
     `order_num` INTEGER NOT NULL,
@@ -549,7 +549,7 @@ CREATE TABLE `role_fun_api` (
 -- CreateTable
 CREATE TABLE `role_user` (
     `id` BIGINT NOT NULL AUTO_INCREMENT,
-    `create_time` DATETIME(3) NOT NULL,
+    `create_time` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `role_id` BIGINT NOT NULL,
     `user_id` BIGINT NOT NULL,
     `category_id` BIGINT NOT NULL,
@@ -573,8 +573,8 @@ CREATE TABLE `swagger_config` (
 
 -- CreateTable
 CREATE TABLE `system_config` (
-    `id` BIGINT NOT NULL,
-    `create_time` DATETIME(3) NOT NULL,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `create_time` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `code` VARCHAR(255) NULL,
     `val` LONGTEXT NULL,
     `remarks` VARCHAR(255) NULL,
@@ -585,7 +585,7 @@ CREATE TABLE `system_config` (
 -- CreateTable
 CREATE TABLE `team` (
     `Id` BIGINT NOT NULL AUTO_INCREMENT,
-    `create_time` DATETIME(3) NOT NULL,
+    `create_time` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `no` VARCHAR(255) NULL,
     `name` VARCHAR(255) NULL,
     `create_id` BIGINT NOT NULL,
@@ -611,7 +611,7 @@ CREATE TABLE `team_invite_code` (
 -- CreateTable
 CREATE TABLE `team_user` (
     `id` BIGINT NOT NULL AUTO_INCREMENT,
-    `create_time` DATETIME(3) NOT NULL,
+    `create_time` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `team_id` BIGINT NOT NULL,
     `user_id` BIGINT NOT NULL,
 
@@ -620,10 +620,10 @@ CREATE TABLE `team_user` (
 
 -- CreateTable
 CREATE TABLE `train` (
-    `id` BIGINT NOT NULL,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
     `train_project_name` VARCHAR(45) NOT NULL,
     `algorithm_name` VARCHAR(45) NOT NULL,
-    `create_time` DATETIME(0) NOT NULL,
+    `create_time` DATETIME(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
     `status` INTEGER NULL DEFAULT 0,
     `create_id` BIGINT NOT NULL,
 
@@ -632,7 +632,7 @@ CREATE TABLE `train` (
 
 -- CreateTable
 CREATE TABLE `train_config` (
-    `id` BIGINT NOT NULL,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
     `model_version_id` BIGINT NOT NULL,
     `epochs` INTEGER NULL,
     `batch_size` INTEGER NULL,
@@ -658,7 +658,7 @@ CREATE TABLE `train_config` (
     `fliplr` VARCHAR(45) NULL,
     `data_record_name` VARCHAR(1024) NULL,
     `data_record_ids` TEXT NULL,
-    `create_time` DATETIME(0) NULL,
+    `create_time` DATETIME(0) NULL DEFAULT CURRENT_TIMESTAMP(0),
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -680,8 +680,8 @@ CREATE TABLE `users` (
 
 -- CreateTable
 CREATE TABLE `users_copy1` (
-    `id` BIGINT NOT NULL,
-    `create_time` DATETIME(3) NOT NULL,
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `create_time` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `account` VARCHAR(255) NULL,
     `password` VARCHAR(255) NULL,
     `email` VARCHAR(255) NULL,
