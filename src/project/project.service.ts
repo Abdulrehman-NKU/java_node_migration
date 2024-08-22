@@ -23,7 +23,7 @@ import {
   Get_Project_Role_Request_DTO,
 } from './dto/add_project_user_request.dto';
 import { SystemConfigService } from 'src/system_config/system_config.service';
-import { CONSTANT } from 'src/Constants';
+import { CONSTANT, Role_Category, Roles } from 'src/Constants';
 import { RoleUserService } from 'src/role_user/role_user.service';
 
 @Injectable()
@@ -81,7 +81,7 @@ export class ProjectService {
       this.role_user_service.add({
         roleId: BigInt(val),
         userId: user.id,
-        categoryId: BigInt(1),
+        categoryId: BigInt(Role_Category.project_role),
         businessId: project.id,
       });
     } catch (error) {
@@ -371,6 +371,7 @@ export class ProjectService {
     }
     const { val } = await this.system_config_service.get_by_code(
       CONSTANT.ProjectCreateRoleIdCode,
+      String(Roles.project_creator),
     );
 
     if (!val)
@@ -386,7 +387,7 @@ export class ProjectService {
       return this.role_user_service.add({
         roleId,
         userId,
-        categoryId: BigInt(1),
+        categoryId: BigInt(Role_Category.project_role),
         businessId: projectId,
       });
     } catch (error) {
