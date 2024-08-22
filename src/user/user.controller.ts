@@ -22,7 +22,7 @@ import { users } from '@prisma/client';
 import { Forget_Password_Request_DTO } from './dto/forget_password_request.dto';
 import { We_Chat_Login_Request_DTO } from './dto/we_chat_login_request_dto';
 import { Search_User_Request_DTO } from './dto/search_user_request.dto';
-import { Transform_To_BigInt } from 'src/common/custom_pipes/transform_to_big_int.pipe';
+import { Parse_BigInt_Pipe } from 'src/common/custom_pipes/transform_to_big_int.pipe';
 import { Trasnform_BigInt_To_String } from 'src/common/interceptors/transform_big_int_to_string.interceptor';
 
 @Controller('Account')
@@ -97,7 +97,7 @@ export class UserController {
 
   @UseInterceptors(Trasnform_BigInt_To_String)
   @Get('/getById')
-  async getById(@Query('id', Transform_To_BigInt) id: bigint) {
+  async getById(@Query('id', Parse_BigInt_Pipe) id: bigint) {
     return this.util_service.tryCatchWrapper(() =>
       this.user_service.get_user_by_id(id),
     )();

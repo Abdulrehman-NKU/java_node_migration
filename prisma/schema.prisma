@@ -418,6 +418,7 @@ model project_user {
   create_time DateTime @default(now())
   project_id  BigInt
   project     project  @relation(fields: [project_id], references: [id])
+  user        users    @relation(fields: [user_id], references: [id])
   user_id     BigInt
 }
 
@@ -482,24 +483,26 @@ model rect_data {
 }
 
 model role {
-  id          BigInt   @id @default(autoincrement())
-  create_time DateTime @default(now())
-  name        String?  @db.VarChar(255)
+  id          BigInt      @id @default(autoincrement())
+  create_time DateTime    @default(now())
+  name        String?     @db.VarChar(255)
   parent_id   BigInt
   order_num   Int
-  remarks     String?  @db.VarChar(255)
+  remarks     String?     @db.VarChar(255)
   create_id   BigInt
   status      Int
   category_id Int
-  tag         String?  @db.VarChar(255)
+  tag         String?     @db.VarChar(255)
+  role_user   role_user[]
 }
 
 model role_category {
-  Id         BigInt   @id @default(autoincrement())
+  Id         BigInt      @id @default(autoincrement())
   CreateTime DateTime
-  Name       String?  @db.VarChar(255)
-  Remarks    String?  @db.VarChar(255)
+  Name       String?     @db.VarChar(255)
+  Remarks    String?     @db.VarChar(255)
   IsDeleted  Int
+  role_user  role_user[]
 }
 
 model role_fun_api {
@@ -510,11 +513,15 @@ model role_fun_api {
 }
 
 model role_user {
-  id          BigInt   @id @default(autoincrement())
-  create_time DateTime @default(now())
+  id          BigInt        @id @default(autoincrement())
+  create_time DateTime      @default(now())
+  role        role          @relation(fields: [role_id], references: [id])
   role_id     BigInt
+  user        users         @relation(fields: [user_id], references: [id])
   user_id     BigInt
+  category    role_category @relation(fields: [category_id], references: [Id])
   category_id BigInt
+
   business_id BigInt
 }
 
@@ -603,15 +610,17 @@ model train_config {
 }
 
 model users {
-  id          BigInt   @id @default(autoincrement())
-  create_time DateTime @default(now())
-  account     String?  @db.VarChar(255)
-  password    String?  @db.VarChar(255)
-  email       String?  @db.VarChar(255)
-  tel_num     String?  @db.VarChar(255)
-  true_name   String?  @db.VarChar(255)
-  nick_name   String?  @db.VarChar(255)
-  status      Int      @default(1)
+  id           BigInt         @id @default(autoincrement())
+  create_time  DateTime       @default(now())
+  account      String?        @db.VarChar(255)
+  password     String?        @db.VarChar(255)
+  email        String?        @db.VarChar(255)
+  tel_num      String?        @db.VarChar(255)
+  true_name    String?        @db.VarChar(255)
+  nick_name    String?        @db.VarChar(255)
+  status       Int            @default(1)
+  project_user project_user[]
+  role_user    role_user[]
 }
 
 model users_copy1 {

@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { users } from '@prisma/client';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 @Injectable()
 export class Util_Service {
   CODE_CHARACTERS =
@@ -10,6 +11,9 @@ export class Util_Service {
       try {
         return await fn(...args);
       } catch (error) {
+        if (error instanceof PrismaClientKnownRequestError) {
+          throw new BadRequestException({ ...error });
+        }
         console.error('An error occurred:', error.message + '\n');
         console.error('raw error', error);
         throw error; // rethrowing error after logging, customize as needed.

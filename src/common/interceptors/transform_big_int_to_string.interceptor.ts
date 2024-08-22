@@ -5,7 +5,7 @@ import {
   NestInterceptor,
   NotFoundException,
 } from '@nestjs/common';
-import { map, Observable } from 'rxjs';
+import { catchError, map, Observable } from 'rxjs';
 
 @Injectable()
 export class Trasnform_BigInt_To_String<T> implements NestInterceptor<T, any> {
@@ -15,11 +15,14 @@ export class Trasnform_BigInt_To_String<T> implements NestInterceptor<T, any> {
   ): Observable<any> | Promise<Observable<any>> {
     return next.handle().pipe(
       map((data) => {
-        if (!data) throw new NotFoundException({ message: 'No result!' });
         // data instanceof Array
         if (data.constructor === Array)
           return data.map((d) => this.convertObjectBigIntPropertyToString(d));
         return this.convertObjectBigIntPropertyToString(data);
+      }),
+      catchError((error) => {
+        console.log(error);
+        throw error;
       }),
     );
   }

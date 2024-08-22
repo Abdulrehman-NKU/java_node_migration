@@ -3,12 +3,13 @@ import {
   BadRequestException,
   NotFoundException,
   ForbiddenException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { Prisma_Service } from 'src/prisma/prisma.service';
 import { Add_Empty_Project_Request_DTO } from './dto/add_empty_project_request.dto';
 import { user_with_role_and_urls_with_id_as_bigInt } from 'src/types';
 import { Category_Enum, Project_Enum } from './project.enum';
-import moment from 'moment';
+import * as moment from 'moment';
 import { Util_Service } from 'src/util/util.service';
 import { Edit_Project_Request_DTO } from './dto/edit_project_request_dto';
 import { Get_Project_By_Id_Request_DTO } from './dto/get_project_by_id_request.dto';
@@ -17,6 +18,13 @@ import { ProjectUserService } from './project_user/project_user.service';
 import { ProjectSceneService } from './project_scene/project_scene.service';
 import { Get_Project_By_Id_Response_DTO } from './dto/get_project_by_id_response.dto';
 import { Get_All_Project_Request_DTO } from './dto/get_all_project_request.dto';
+import {
+  Add_Project_User_Request_DTO,
+  Get_Project_Role_Request_DTO,
+} from './dto/add_project_user_request.dto';
+import { SystemConfigService } from 'src/system_config/system_config.service';
+import { CONSTANT } from 'src/Constants';
+import { RoleUserService } from 'src/role_user/role_user.service';
 
 @Injectable()
 export class ProjectService {
@@ -26,6 +34,8 @@ export class ProjectService {
     private project_user_service: ProjectUserService,
     private project_config_service: ProjectConfigService,
     private project_scene_service: ProjectSceneService,
+    private system_config_service: SystemConfigService,
+    private role_user_service: RoleUserService,
   ) {}
 
   async add_empty(
@@ -34,11 +44,11 @@ export class ProjectService {
   ) {
     if (!category) category = Category_Enum.CATEGORY_IMG;
 
-    this.prisma.$transaction(async (tx) => {
+    const { project, val } = await this.prisma.$transaction(async (tx) => {
       const project = await tx.project.create({
         data: {
           project_no:
-            moment().format('yyyyMMddHHmmss') +
+            moment().format('YYYYMMDDHHmmss') +
             this.util_service.createRandomCode(6),
           status: Project_Enum.STATUS_INIT,
           category: category,
@@ -54,28 +64,43 @@ export class ProjectService {
         },
       });
 
-      /**
-       * Todo: Some SystemCofigApi logic
-       *
-       * And throw some exceptions based on that
-       * 
-       * 
-        String val = systemConfigApi.getByCode(CONSTANT.ProjectCreateRoleIdCode, "");
-        if (val.isEmpty()) {
-            // The creator's role ID is not configured!
-            throw new BusinessException("未配置创建者的角色Id！");
-        }
-        if (!roleApi.setRole(Long.valueOf(val), Long.valueOf(currUserId), Long.valueOf(1), project.getId(), true)) {
-            // Character setup failed!
-            throw new BusinessException("角色设置失败！");
-        }
+      const { val } = await this.system_config_service.get_by_code(
+        CONSTANT.ProjectCreateRoleIdCode,
+        undefined,
+        tx,
+      );
 
-        if (request.getMarkData() != null && request.getMarkData().size() > 0) {
-            request.getMarkData().forEach(e -> projectImageService.add(project.getId(), e));
-        }
-       */
-      return project;
+      if (!val)
+        throw new BadRequestException({
+          message: 'Creator role ID is not configured!',
+        });
+      return { project, val };
     });
+
+    try {
+      this.role_user_service.add({
+        roleId: BigInt(val),
+        userId: user.id,
+        categoryId: BigInt(1),
+        businessId: project.id,
+      });
+    } catch (error) {
+      console.log(error, 'Error role_user_service.add');
+      throw new InternalServerErrorException({
+        message: 'Character setup failed!',
+      });
+    }
+
+    /**
+   * Todo: Some Images Logic logic
+   *
+   * And throw some exceptions based on that
+
+    if (request.getMarkData() != null && request.getMarkData().size() > 0) {
+        request.getMarkData().forEach(e -> projectImageService.add(project.getId(), e));
+    }
+   */
+    return project;
   }
 
   async edit({
@@ -165,7 +190,19 @@ export class ProjectService {
     return response;
   }
 
-  async complete(id: bigint) {
+  // Modification: Added a check only project owner can mark it as completed
+  async complete(id: bigint, user: user_with_role_and_urls_with_id_as_bigInt) {
+    const project = await this.prisma.project.findFirst({
+      where: {
+        id,
+      },
+    });
+
+    if (project.creator_id !== user.id)
+      throw new ForbiddenException({
+        message: 'User is not allowed to perform this action',
+      });
+
     return this.prisma.project.update({
       where: {
         id,
@@ -185,57 +222,50 @@ export class ProjectService {
     }: Get_All_Project_Request_DTO,
     user: user_with_role_and_urls_with_id_as_bigInt,
   ) {
-    const project_user_p_ids = (
-      await this.prisma.project_user.findMany({
-        select: { project_id: true },
-        where: { user_id: user.id },
-      })
-    ).map((user) => user.project_id);
-
     const where_clause: any = {
-      status: { not: 99 },
-      OR: [
-        { creator_id: user.id },
+      status: { not: Project_Enum.STATUS_DELETE },
+      AND: [
         {
-          id: {
-            in: project_user_p_ids,
-          },
+          OR: [
+            {
+              creator_id: user.id,
+            },
+            {
+              project_user: {
+                some: {
+                  id: user.id,
+                },
+              },
+            },
+          ],
         },
       ],
     };
 
-    if (category) where_clause.category = category;
+    if (category) where_clause.AND.push({ category });
 
-    if (value) {
-      const projectIdsFromTags = (
-        await this.prisma.project_tag.findMany({
-          select: { project_id: true },
-          where: {
-            tag: {
+    if (value)
+      where_clause.AND.push({
+        OR: [
+          {
+            project_name: {
               contains: value,
             },
           },
-        })
-      ).map((tag) => tag.project_id);
-
-      where_clause.OR.push({
-        OR: [
           {
-            project_name: value,
-          },
-          {
-            id: {
-              in: projectIdsFromTags,
+            project_tag: {
+              some: {
+                tag: {
+                  contains: value,
+                },
+              },
             },
           },
         ],
       });
-    }
 
     const order_by = [];
-
     if (createTimeOrder) order_by.push({ create_time: createTimeOrder });
-
     if (updateTimeOrder) order_by.push({ last_update_time: updateTimeOrder });
 
     const projects = await this.prisma.project.findMany({
@@ -262,13 +292,106 @@ export class ProjectService {
     return projects;
   }
 
-  quick() {}
+  async quick(
+    page_size: number,
+    user: user_with_role_and_urls_with_id_as_bigInt,
+  ) {
+    return this.prisma.project.findMany({
+      where: {
+        status: { not: Project_Enum.STATUS_DELETE },
+        OR: [
+          {
+            creator_id: user.id,
+          },
+          {
+            project_user: {
+              some: {
+                id: user.id,
+              },
+            },
+          },
+        ],
+      },
+      orderBy: [{ id: 'desc' }],
+      take: page_size,
+    });
+  }
 
-  del() {}
+  async del(
+    project_id: bigint,
+    user: user_with_role_and_urls_with_id_as_bigInt,
+  ) {
+    const project = await this.prisma.project.findFirst({
+      where: {
+        id: project_id,
+      },
+    });
 
-  add_user() {}
+    if (project.creator_id !== user.id)
+      throw new ForbiddenException({
+        message:
+          'You are not the project creator and cannot perform this operation!',
+      });
 
-  delete_user() {}
+    // Todo: Some DataRecordLogService code line I ignored
 
-  role() {}
+    return this.prisma.project.update({
+      where: {
+        id: project_id,
+      },
+      data: {
+        status: Project_Enum.STATUS_DELETE,
+      },
+    });
+  }
+
+  async add_project_user(
+    request_dto: Add_Project_User_Request_DTO,
+    user: user_with_role_and_urls_with_id_as_bigInt,
+  ) {
+    return this.project_user_service.add_user(request_dto, user);
+  }
+
+  async delete_project_user(
+    request_dto: Add_Project_User_Request_DTO,
+    user: user_with_role_and_urls_with_id_as_bigInt,
+  ) {
+    return this.project_user_service.delete_user(request_dto, user);
+  }
+
+  async add_user_role(
+    { projectId, roleId, userId }: Get_Project_Role_Request_DTO,
+    user: user_with_role_and_urls_with_id_as_bigInt,
+  ) {
+    if (user.id === userId) {
+      throw new ForbiddenException({
+        message:
+          "Operation failed, you don't have permission to perform this action, you cannot authorize yourself!",
+      });
+    }
+    const { val } = await this.system_config_service.get_by_code(
+      CONSTANT.ProjectCreateRoleIdCode,
+    );
+
+    if (!val)
+      throw new BadRequestException({
+        message: 'Creator role ID is not configured!',
+      });
+    else if (BigInt(val) === roleId)
+      throw new ForbiddenException({
+        message: 'Cannot assign the creator role!',
+      });
+
+    try {
+      return this.role_user_service.add({
+        roleId,
+        userId,
+        categoryId: BigInt(1),
+        businessId: projectId,
+      });
+    } catch (error) {
+      console.log(error, 'Error role_user_service.add');
+      throw new InternalServerErrorException({ message: 'Failed to set role' });
+    }
+  }
 }
