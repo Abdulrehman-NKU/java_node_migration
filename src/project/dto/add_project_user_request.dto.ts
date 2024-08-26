@@ -2,9 +2,9 @@ import { IsNotEmpty } from '@nestjs/class-validator';
 import { Type } from 'class-transformer';
 
 export class Add_Project_User_Request_DTO {
-  @IsNotEmpty({ message: 'Project id is required' })
+  @IsNotEmpty()
   projectId: bigint;
-  @IsNotEmpty({ message: 'User id is required' })
+  @IsNotEmpty()
   userId: bigint;
 }
 

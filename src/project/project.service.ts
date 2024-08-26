@@ -44,7 +44,7 @@ export class ProjectService {
   ) {
     if (!category) category = Category_Enum.CATEGORY_IMG;
 
-    const { project, val } = await this.prisma.$transaction(async (tx) => {
+    return await this.util_service.use_tranaction(async (tx) => {
       const project = await tx.project.create({
         data: {
           project_no:
@@ -74,33 +74,36 @@ export class ProjectService {
         throw new BadRequestException({
           message: 'Creator role ID is not configured!',
         });
-      return { project, val };
+
+      try {
+        await this.role_user_service.add(
+          {
+            roleId: BigInt(val),
+            userId: user.id,
+            categoryId: BigInt(Role_Category.project_role),
+            businessId: project.id,
+          },
+          tx,
+        );
+      } catch (error) {
+        console.log(error, 'Error role_user_service.add');
+        throw new InternalServerErrorException({
+          message: 'Character setup failed!',
+        });
+      }
+
+      /**
+       * Todo: Some Images Logic logic
+       *
+       * And throw some exceptions based on that
+
+        if (request.getMarkData() != null && request.getMarkData().size() > 0) {
+          request.getMarkData().forEach(e -> projectImageService.add(project.getId(), e));
+      }
+      */
+
+      return project;
     });
-
-    try {
-      this.role_user_service.add({
-        roleId: BigInt(val),
-        userId: user.id,
-        categoryId: BigInt(Role_Category.project_role),
-        businessId: project.id,
-      });
-    } catch (error) {
-      console.log(error, 'Error role_user_service.add');
-      throw new InternalServerErrorException({
-        message: 'Character setup failed!',
-      });
-    }
-
-    /**
-   * Todo: Some Images Logic logic
-   *
-   * And throw some exceptions based on that
-
-    if (request.getMarkData() != null && request.getMarkData().size() > 0) {
-        request.getMarkData().forEach(e -> projectImageService.add(project.getId(), e));
-    }
-   */
-    return project;
   }
 
   async edit({
@@ -108,6 +111,8 @@ export class ProjectService {
     projectName,
     id,
     remarks,
+    startTime,
+    endTime,
   }: Edit_Project_Request_DTO) {
     const project = await this.prisma.project.findFirst({
       where: {
@@ -120,15 +125,13 @@ export class ProjectService {
     else if (project.status === Project_Enum.STATUS_DELETE)
       throw new BadRequestException({ message: 'Project has been deleted' });
 
-    const current_time = new Date();
-
     return this.prisma.project.update({
       where: {
         id: project.id,
       },
       data: {
-        start_time: current_time,
-        end_time: current_time,
+        start_time: startTime,
+        end_time: endTime,
         project_name: projectName,
         remarks,
         ...(sceneCategory

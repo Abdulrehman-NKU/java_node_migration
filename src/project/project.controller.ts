@@ -1,6 +1,7 @@
 import {
   Controller,
   Post,
+  Patch,
   Get,
   Delete,
   Query,
@@ -34,7 +35,7 @@ export class ProjectController {
     private util_service: Util_Service,
   ) {}
 
-  @Post('/AddEmpty')
+  @Post('/') // AddEmpty
   add_empty_project(
     @Body() request_dto: Add_Empty_Project_Request_DTO,
     @User() user: user_with_role_and_urls_with_id_as_bigInt,
@@ -44,14 +45,14 @@ export class ProjectController {
     )();
   }
 
-  @Post('/Edit')
+  @Patch('/') // Edit
   edit_project(@Body() request_dto: Edit_Project_Request_DTO) {
     return this.util_service.tryCatchWrapper(() =>
       this.project_service.edit(request_dto),
     )();
   }
 
-  @Get('/ById')
+  @Get('/id') // ById
   get_project_by_id(
     @Query() request_dto: Get_Project_By_Id_Request_DTO,
     @User() user: user_with_role_and_urls_with_id_as_bigInt,
@@ -71,7 +72,7 @@ export class ProjectController {
     )();
   }
 
-  @Get('/GetAll')
+  @Get('/') // GetAll
   get_all_projects(
     @Query() request_dto: Get_All_Project_Request_DTO,
     @User() user: user_with_role_and_urls_with_id_as_bigInt,
@@ -81,7 +82,7 @@ export class ProjectController {
     )();
   }
 
-  @Get('/Quick')
+  @Get('/quick') // Quick
   quick(
     @Query('pageSize', ParseIntPipe) page_size: number = 4,
     @User() user: user_with_role_and_urls_with_id_as_bigInt,
@@ -91,7 +92,7 @@ export class ProjectController {
     )();
   }
 
-  @Delete('/Del')
+  @Delete('/id') // Del
   delete_project(
     @Query('id', Parse_BigInt_Pipe) id: bigint,
     @User() user: user_with_role_and_urls_with_id_as_bigInt,
@@ -101,7 +102,7 @@ export class ProjectController {
     )();
   }
 
-  @Post('/AddUser')
+  @Post('/user') // AddUser
   add_project_user(
     @Body() request_dto: Add_Project_User_Request_DTO,
     @User() user: user_with_role_and_urls_with_id_as_bigInt,
@@ -112,9 +113,9 @@ export class ProjectController {
   }
 
   // Todo: Not Implemented Yet!
-  @Post('/DeleteUser')
+  @Delete('/user') // DeleteUser
   delete_project_user(
-    @Body() request_dto: Add_Project_User_Request_DTO,
+    @Query() request_dto: Add_Project_User_Request_DTO,
     @User() user: user_with_role_and_urls_with_id_as_bigInt,
   ) {
     return this.util_service.tryCatchWrapper(() =>
@@ -122,7 +123,7 @@ export class ProjectController {
     )();
   }
 
-  @Post('/Role')
+  @Post('/user/role') // Role
   role(
     @Body() request_dto: Get_Project_Role_Request_DTO,
     @User() user: user_with_role_and_urls_with_id_as_bigInt,

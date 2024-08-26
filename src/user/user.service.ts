@@ -20,10 +20,10 @@ import { users } from '@prisma/client';
 import { Property_To_String } from 'src/util/types';
 import { Forget_Password_Request_DTO } from './dto/forget_password_request.dto';
 import { Util_Service } from 'src/util/util.service';
-import { UserRoleService } from 'src/user_role/user_role.service';
 import { We_Chat_Login_Request_DTO } from './dto/we_chat_login_request_dto';
 import { Search_User_Request_DTO } from './dto/search_user_request.dto';
 import { Request } from 'express';
+import { RoleUserService } from 'src/role_user/role_user.service';
 
 @Injectable()
 export class UserService {
@@ -32,7 +32,7 @@ export class UserService {
     private password_service: Password_Service,
     private jwt_service: JwtService,
     private util_service: Util_Service,
-    private user_role_service: UserRoleService,
+    private role_user_service: RoleUserService,
     @Inject(CACHE_MANAGER) private cache_mangager: Cache,
   ) {}
 
@@ -60,8 +60,9 @@ export class UserService {
     });
 
     if (!user)
-      throw new NotFoundException({
-        message: 'User not found!',
+      // Good Practice to avoid brute force
+      throw new UnauthorizedException({
+        message: 'Incorrect username or password',
       });
     else if (
       !this.password_service.checkPasswordCorrect(
@@ -69,7 +70,9 @@ export class UserService {
         user.password,
       )
     )
-      throw new UnauthorizedException({ message: 'Incorrect password' });
+      throw new UnauthorizedException({
+        message: 'Incorrect username or password',
+      });
     else if (user.status !== 1)
       throw new ForbiddenException({
         message: 'The account has been suspended or cancelled',
@@ -77,7 +80,7 @@ export class UserService {
 
     const user_login_response = new User_Login_Response_DTO();
 
-    const user_roles = await this.user_role_service.find_user_roles_by_user_id(
+    const user_roles = await this.role_user_service.find_user_roles_by_user_id(
       user.id,
     );
 
@@ -85,7 +88,7 @@ export class UserService {
       user_login_response.rids = user_roles.map((role) => role.id).join(',');
 
       const fun_apis =
-        await this.user_role_service.find_roles_fun_api(user_roles);
+        await this.role_user_service.find_roles_fun_api(user_roles);
       user_login_response.url = fun_apis.map((api) => api.url).join(',');
     }
 

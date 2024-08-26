@@ -1,8 +1,11 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
-import { users } from '@prisma/client';
+import { PrismaClient, users } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import { Prisma_Service } from 'src/prisma/prisma.service';
+import { Prisma_Transaction } from 'src/types';
 @Injectable()
 export class Util_Service {
+  constructor(private prisma: Prisma_Service) {}
   CODE_CHARACTERS =
     '0123456789ABCdefghiDEFGHIJopPQRVWXYZabcjklSTUmnqrstKLMNOvuwxyz';
 
@@ -35,5 +38,14 @@ export class Util_Service {
       length--;
     }
     return code;
+  }
+
+  async use_tranaction<T = unknown>(
+    fn: (tx: Prisma_Transaction) => Promise<T>,
+    tx: Prisma_Transaction = null,
+  ) {
+    return this.prisma.$transaction(async (new_tx) => {
+      return await fn(tx ?? new_tx);
+    });
   }
 }

@@ -4,7 +4,8 @@ import { UserService } from './user.service';
 import { Password_Service } from './password.service';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { jwt_constants } from 'src/Constants';
-import { UserRoleModule } from 'src/user_role/user_role.module';
+import { RoleUserModule } from 'src/role_user/role_user.module';
+import { RoleUserService } from 'src/role_user/role_user.service';
 
 @Module({
   imports: [
@@ -16,9 +17,9 @@ import { UserRoleModule } from 'src/user_role/user_role.module';
         expiresIn: '30h',
       },
     }),
-    UserRoleModule,
+    RoleUserModule,
   ],
   controllers: [UserController],
-  providers: [UserService, Password_Service, JwtService],
+  providers: [UserService, Password_Service, JwtService, RoleUserService],
 })
 export class UserModule {}

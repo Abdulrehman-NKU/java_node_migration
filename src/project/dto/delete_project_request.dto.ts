@@ -1,8 +1,6 @@
-import { IsNotEmpty } from '@nestjs/class-validator';
-import { Type } from 'class-transformer';
+import { IsNotEmpty_Type_Cast } from 'src/common/decorator/validation.decorator';
 
 export class Delete_Project_Request_DTO {
-  @IsNotEmpty({ message: 'Id Parameter cannot be empty' })
-  @Type(() => BigInt)
+  @IsNotEmpty_Type_Cast(BigInt)
   id: bigint;
 }

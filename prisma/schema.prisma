@@ -28,14 +28,14 @@ model baggagetrace {
 }
 
 model config_template {
-  id          BigInt    @id @default(autoincrement())
+  id          BigInt   @id @default(autoincrement())
   scene_id    BigInt
-  type        Int       @default(10) @db.TinyInt
-  value       String    @db.Text
+  type        Int      @default(10) @db.TinyInt
+  value       String   @db.Text
   create_id   BigInt
-  create_time DateTime  @default(now()) @db.DateTime(0)
+  create_time DateTime @default(now()) @db.DateTime(0)
   update_id   BigInt?
-  update_time DateTime? @db.DateTime(0)
+  update_time DateTime @default(now()) @updatedAt
 
   @@index([scene_id], map: "idx_scene_id")
 }
@@ -54,35 +54,35 @@ model cut_data {
   create_id               BigInt
   create_time             DateTime? @default(now()) @db.DateTime(0)
   update_id               BigInt?
-  update_time             DateTime? @db.DateTime(0)
+  update_time             DateTime  @default(now()) @updatedAt
 
   @@index([image_id], map: "image_index")
   @@index([project_id], map: "project_index")
 }
 
 model data_record {
-  id          BigInt    @id @default(autoincrement())
-  name        String    @db.VarChar(32)
-  quantity    Int       @default(0)
+  id          BigInt   @id @default(autoincrement())
+  name        String   @db.VarChar(32)
+  quantity    Int      @default(0)
   create_id   BigInt
-  create_time DateTime  @default(now()) @db.DateTime(0)
+  create_time DateTime @default(now()) @db.DateTime(0)
   update_id   BigInt?
-  update_time DateTime? @db.DateTime(0)
+  update_time DateTime @default(now()) @updatedAt
 
   @@index([create_id], map: "idx_create_id")
 }
 
 model data_record_item {
-  id             BigInt    @id @default(autoincrement())
+  id             BigInt   @id @default(autoincrement())
   data_record_id BigInt
   project_id     BigInt
-  project        project   @relation(fields: [project_id], references: [id])
+  project        project  @relation(fields: [project_id], references: [id])
   image_id       BigInt
-  url            String    @db.VarChar(255)
+  url            String   @db.VarChar(255)
   create_id      BigInt
-  create_time    DateTime  @default(now()) @db.DateTime(0)
+  create_time    DateTime @default(now()) @db.DateTime(0)
   update_id      BigInt?
-  update_time    DateTime? @db.DateTime(0)
+  update_time    DateTime @default(now()) @updatedAt
 
   @@index([data_record_id], map: "idx_data_record_id")
   @@index([image_id], map: "idx_image_id")
@@ -179,7 +179,7 @@ model point_data {
   create_id               BigInt
   create_time             DateTime? @default(now()) @db.DateTime(0)
   update_id               BigInt?
-  update_time             DateTime? @db.DateTime(0)
+  update_time             DateTime  @default(now()) @updatedAt
 
   @@index([image_id], map: "idx_image_id")
   @@index([project_id], map: "idx_project_id")
@@ -223,75 +223,75 @@ model project {
 }
 
 model project_ar_config {
-  id          BigInt    @id @default(autoincrement())
-  value       String    @db.Text
+  id          BigInt   @id @default(autoincrement())
+  value       String   @db.Text
   project_id  BigInt
-  project     project   @relation(fields: [project_id], references: [id])
+  project     project  @relation(fields: [project_id], references: [id])
   create_id   BigInt
-  create_time DateTime  @default(now()) @db.DateTime(0)
+  create_time DateTime @default(now()) @db.DateTime(0)
   update_id   BigInt?
-  update_time DateTime? @db.DateTime(0)
+  update_time DateTime @default(now()) @updatedAt
 
   @@index([project_id], map: "idx_project_id")
 }
 
 model project_ar_config_0902 {
-  id                    BigInt    @id @default(autoincrement())
-  screensizefactor      Decimal   @db.Decimal(32, 2)
-  bundledownloadurl     String?   @db.VarChar(100)
+  id                    BigInt   @id @default(autoincrement())
+  screensizefactor      Decimal  @db.Decimal(32, 2)
+  bundledownloadurl     String?  @db.VarChar(100)
   darknessbluriteration Int
-  bundlestoload         String    @db.VarChar(1024)
-  shoulddarken          Int       @default(0)
-  darknessfactor        Decimal?  @db.Decimal(32, 2)
+  bundlestoload         String   @db.VarChar(1024)
+  shoulddarken          Int      @default(0)
+  darknessfactor        Decimal? @db.Decimal(32, 2)
   project_id            BigInt
-  project               project   @relation(fields: [project_id], references: [id])
+  project               project  @relation(fields: [project_id], references: [id])
   create_id             BigInt
-  create_time           DateTime  @default(now()) @db.DateTime(0)
+  create_time           DateTime @default(now()) @db.DateTime(0)
   update_id             BigInt?
-  update_time           DateTime? @db.DateTime(0)
+  update_time           DateTime @default(now()) @updatedAt
 
   @@index([project_id], map: "idx_project_id")
 }
 
 model project_ar_image {
-  id          BigInt    @id @default(autoincrement())
+  id          BigInt   @id @default(autoincrement())
   project_id  BigInt
-  project     project   @relation(fields: [project_id], references: [id])
-  url         String    @db.VarChar(128)
-  text        String?   @db.VarChar(3200)
-  is_valid    Boolean   @default(false)
+  project     project  @relation(fields: [project_id], references: [id])
+  url         String   @db.VarChar(128)
+  text        String?  @db.VarChar(3200)
+  is_valid    Boolean  @default(false)
   create_id   BigInt
-  create_time DateTime  @default(now()) @db.DateTime(0)
+  create_time DateTime @default(now()) @db.DateTime(0)
   update_id   BigInt?
-  update_time DateTime? @db.DateTime(0)
+  update_time DateTime @default(now()) @updatedAt
 
   @@index([project_id], map: "idx_project_id")
 }
 
 model project_batch {
-  id          BigInt    @id @default(autoincrement())
-  name        String    @db.VarChar(32)
+  id          BigInt   @id @default(autoincrement())
+  name        String   @db.VarChar(32)
   project_id  BigInt
-  project     project   @relation(fields: [project_id], references: [id])
-  create_id   String    @db.VarChar(32)
-  create_time DateTime  @default(now()) @db.DateTime(0)
-  update_id   String?   @db.VarChar(32)
-  update_time DateTime? @db.DateTime(0)
+  project     project  @relation(fields: [project_id], references: [id])
+  create_id   String   @db.VarChar(32)
+  create_time DateTime @default(now()) @db.DateTime(0)
+  update_id   String?  @db.VarChar(32)
+  update_time DateTime @default(now()) @updatedAt
 }
 
 model project_callout_config {
-  id          BigInt    @id @default(autoincrement())
+  id          BigInt   @id @default(autoincrement())
   relation_id BigInt
-  name        String    @db.VarChar(32)
-  shortcuts   String?   @db.VarChar(32)
-  type        Int       @default(0)
-  level       Int       @default(1)
-  parent_id   BigInt    @default(0)
+  name        String   @db.VarChar(32)
+  shortcuts   String?  @db.VarChar(32)
+  type        Int      @default(0)
+  level       Int      @default(1)
+  parent_id   BigInt   @default(0)
   class_id    BigInt
   create_id   BigInt
-  create_time DateTime  @default(now()) @db.DateTime(0)
+  create_time DateTime @default(now()) @db.DateTime(0)
   update_id   BigInt?
-  update_time DateTime? @db.DateTime(0)
+  update_time DateTime @default(now()) @updatedAt
 
   @@index([class_id], map: "idx_class_id")
   @@index([parent_id], map: "idx_parent_id")
@@ -395,19 +395,21 @@ model project_scene {
   icon        String?  @db.VarChar(255)
   status      Int
   remarks     String?  @db.VarChar(255)
-  update_time DateTime
+  update_time DateTime @default(now()) @updatedAt
   notes       String?  @db.LongText
   config      String?  @db.LongText
 }
 
 model project_tag {
-  id          BigInt    @id @default(autoincrement())
+  id          BigInt   @id @default(autoincrement())
   project_id  BigInt
-  project     project   @relation(fields: [project_id], references: [id])
-  tag         String    @db.VarChar(30)
-  create_time DateTime  @default(now()) @db.DateTime(0)
-  update_time DateTime? @db.DateTime(0)
+  project     project  @relation(fields: [project_id], references: [id])
+  tag         String   @db.VarChar(30)
+  create_time DateTime @default(now()) @db.DateTime(0)
+  update_time DateTime @default(now()) @updatedAt
+  created_by  users    @relation("tag_created_by_user", fields: [create_id], references: [id])
   create_id   BigInt
+  updated_by  users?   @relation("tag_updated_by_user", fields: [update_id], references: [id])
   update_id   BigInt?
 
   @@index([tag], map: "idx_project_id") // HOTFIX: BUG ->> It should be mapped as idx_tag_id
@@ -423,48 +425,48 @@ model project_user {
 }
 
 model project_vr_config {
-  id          BigInt    @id @default(autoincrement())
-  value       String    @db.Text
+  id          BigInt   @id @default(autoincrement())
+  value       String   @db.Text
   project_id  BigInt
-  project     project   @relation(fields: [project_id], references: [id])
+  project     project  @relation(fields: [project_id], references: [id])
   create_id   BigInt
-  create_time DateTime  @default(now()) @db.DateTime(0)
+  create_time DateTime @default(now()) @db.DateTime(0)
   update_id   BigInt?
-  update_time DateTime? @db.DateTime(0)
+  update_time DateTime @default(now()) @updatedAt
 
   @@index([project_id], map: "idx_project_id")
 }
 
 model project_vr_config_0902 {
-  id                  BigInt    @id @default(autoincrement())
+  id                  BigInt   @id @default(autoincrement())
   capturedepth        Int
   capturergb          Int
   capturebbox         Int
-  decalsize           Decimal   @db.Decimal(32, 2)
-  positionchangeunits Int       @default(0)
+  decalsize           Decimal  @db.Decimal(32, 2)
+  positionchangeunits Int      @default(0)
   rotationchangeunits Int
   changepercent       Int
   changefrequency     Int
-  randomcols          String    @db.VarChar(1024)
+  randomcols          String   @db.VarChar(1024)
   trays               Int
   randomtrays         Int
-  bagtype             Int       @default(0)
+  bagtype             Int      @default(0)
   decalpercent        Int
-  trayscalefactor     Decimal   @db.Decimal(32, 2)
+  trayscalefactor     Decimal  @db.Decimal(32, 2)
   project_id          BigInt
-  project             project   @relation(fields: [project_id], references: [id])
+  project             project  @relation(fields: [project_id], references: [id])
   create_id           BigInt
-  create_time         DateTime  @default(now()) @db.DateTime(0)
+  create_time         DateTime @default(now()) @db.DateTime(0)
   update_id           BigInt?
-  update_time         DateTime? @db.DateTime(0)
+  update_time         DateTime @default(now()) @updatedAt
 
   @@index([project_id], map: "idx_project_id")
 }
 
 model rect_data {
-  id                      BigInt    @id @default(autoincrement())
+  id                      BigInt   @id @default(autoincrement())
   project_id              BigInt
-  project                 project   @relation(fields: [project_id], references: [id])
+  project                 project  @relation(fields: [project_id], references: [id])
   image_id                BigInt
   image_batch_relation_id BigInt?
   batch_id                BigInt?
@@ -472,11 +474,11 @@ model rect_data {
   y                       Int
   height                  Int
   width                   Int
-  type                    Boolean   @default(false)
+  type                    Boolean  @default(false)
   create_id               BigInt
-  create_time             DateTime  @default(now()) @db.DateTime(0)
+  create_time             DateTime @default(now()) @db.DateTime(0)
   update_id               BigInt?
-  update_time             DateTime? @db.DateTime(0)
+  update_time             DateTime @default(now()) @updatedAt
 
   @@index([image_id], map: "idx_image_id")
   @@index([project_id], map: "idx_project_id")
@@ -544,20 +546,23 @@ model system_config {
 }
 
 model team {
-  Id          BigInt   @id @default(autoincrement())
-  create_time DateTime @default(now())
-  no          String?  @db.VarChar(255)
-  name        String?  @db.VarChar(255)
-  create_id   BigInt
-  remarks     String?  @db.VarChar(255)
-  status      Int
-  trade_name  String?  @db.VarChar(255)
-  team_size   String?  @db.VarChar(255)
+  Id               BigInt             @id @default(autoincrement())
+  create_time      DateTime           @default(now())
+  no               String?            @db.VarChar(255)
+  name             String?            @db.VarChar(255)
+  create_id        BigInt
+  remarks          String?            @db.VarChar(255)
+  status           Int
+  trade_name       String?            @db.VarChar(255)
+  team_size        String?            @db.VarChar(255)
+  team_invite_code team_invite_code[]
+  team_user        team_user[]
 }
 
 model team_invite_code {
   id          BigInt   @id @default(autoincrement())
   create_time DateTime
+  team        team     @relation(fields: [team_id], references: [Id])
   team_id     BigInt
   category    BigInt?
   code        String?  @db.VarChar(255)
@@ -566,7 +571,9 @@ model team_invite_code {
 model team_user {
   id          BigInt   @id @default(autoincrement())
   create_time DateTime @default(now())
+  team        team     @relation(fields: [team_id], references: [Id])
   team_id     BigInt
+  user        users    @relation(fields: [user_id], references: [id])
   user_id     BigInt
 }
 
@@ -610,17 +617,20 @@ model train_config {
 }
 
 model users {
-  id           BigInt         @id @default(autoincrement())
-  create_time  DateTime       @default(now())
-  account      String?        @db.VarChar(255)
-  password     String?        @db.VarChar(255)
-  email        String?        @db.VarChar(255)
-  tel_num      String?        @db.VarChar(255)
-  true_name    String?        @db.VarChar(255)
-  nick_name    String?        @db.VarChar(255)
-  status       Int            @default(1)
-  project_user project_user[]
-  role_user    role_user[]
+  id                  BigInt         @id @default(autoincrement())
+  create_time         DateTime       @default(now())
+  account             String?        @db.VarChar(255)
+  password            String?        @db.VarChar(255)
+  email               String?        @db.VarChar(255)
+  tel_num             String?        @db.VarChar(255)
+  true_name           String?        @db.VarChar(255)
+  nick_name           String?        @db.VarChar(255)
+  status              Int            @default(1)
+  project_user        project_user[]
+  role_user           role_user[]
+  project_tag_created project_tag[]  @relation("tag_created_by_user")
+  project_tag_updated project_tag[]  @relation("tag_updated_by_user")
+  team_user           team_user[]
 }
 
 model users_copy1 {

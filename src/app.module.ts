@@ -6,7 +6,6 @@ import { Prisma_Module } from './prisma/prisma.module';
 import { Util_Module } from './util/util.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { AuthModule } from './auth/auth.module';
-import { UserRoleModule } from './user_role/user_role.module';
 import { EmailConfigModule } from './email_config/email_config.module';
 import { VerificationCodeModule } from './verification_code/verification_code.module';
 import { MailerModule } from '@nestjs-modules/mailer';
@@ -15,6 +14,7 @@ import { MarkModule } from './mark/mark.module';
 import { ProjectModule } from './project/project.module';
 import { SystemConfigModule } from './system_config/system_config.module';
 import { RoleUserModule } from './role_user/role_user.module';
+import { TeamModule } from './team/team.module';
 
 @Module({
   imports: [
@@ -44,13 +44,13 @@ import { RoleUserModule } from './role_user/role_user.module';
     UserModule,
     Util_Module,
     AuthModule,
-    UserRoleModule,
     EmailConfigModule,
     VerificationCodeModule,
     MarkModule,
     ProjectModule,
     SystemConfigModule,
     RoleUserModule,
+    TeamModule,
   ],
   controllers: [AppController],
   providers: [AppService],
