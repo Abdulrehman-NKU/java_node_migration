@@ -40,5 +40,5 @@ export class TeamUserController {
   async exit_team() {}
 
   @Get('/role') // Role
-  async user_role() {}
+  async assign_role() {}
 }

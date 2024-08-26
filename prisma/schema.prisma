@@ -561,7 +561,7 @@ model team {
 
 model team_invite_code {
   id          BigInt   @id @default(autoincrement())
-  create_time DateTime
+  create_time DateTime @default(now())
   team        team     @relation(fields: [team_id], references: [Id])
   team_id     BigInt
   category    BigInt?

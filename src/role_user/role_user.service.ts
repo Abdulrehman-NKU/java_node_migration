@@ -4,6 +4,7 @@ import { Util_Service } from 'src/util/util.service';
 import { Role_To_User_Request_DTO } from './dto/role_to_user.request.dto';
 import { Prisma_Transaction } from 'src/types';
 import { role_user } from '@prisma/client';
+import { Remove_User_Role_Request_DTO } from './dto/remove_user_role.request.dto';
 
 @Injectable()
 export class RoleUserService {
@@ -23,6 +24,21 @@ export class RoleUserService {
           user_id: userId,
           category_id: categoryId,
           business_id: businessId,
+        },
+      });
+    }, tx);
+  }
+
+  async remove_user_role(
+    { userId, businessId, categortyId }: Remove_User_Role_Request_DTO,
+    tx: Prisma_Transaction = null,
+  ) {
+    return this.util_service.use_tranaction(async (tx) => {
+      return tx.role_user.deleteMany({
+        where: {
+          user_id: userId,
+          business_id: businessId,
+          category_id: categortyId,
         },
       });
     }, tx);
