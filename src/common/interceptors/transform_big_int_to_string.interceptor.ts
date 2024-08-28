@@ -23,7 +23,7 @@ export class Trasnform_BigInt_To_String<T> implements NestInterceptor<T, any> {
   }
 
   private parse_big_int_to_string(data) {
-    if (data?.constructor === Array)
+    if (data.constructor === Array)
       return data.map((d) => this.convert_record_big_int_property_to_string(d));
     return this.convert_record_big_int_property_to_string(data);
   }
