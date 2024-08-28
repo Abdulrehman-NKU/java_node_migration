@@ -1,5 +1,5 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
-import { PrismaClient, users } from '@prisma/client';
+import { users } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { Prisma_Service } from 'src/prisma/prisma.service';
 import { Prisma_Transaction } from 'src/types';

@@ -151,6 +151,14 @@ export class ProjectService {
       where: {
         id,
       },
+      include: {
+        project_user: {
+          include: {
+            user: true,
+          },
+        },
+        project_tag: true,
+      },
     });
 
     if (!project)
@@ -185,11 +193,27 @@ export class ProjectService {
     response.createTime = project.create_time;
     response.scene = project_scene;
     // Todo: Following code need to be modified
-    response.users = [];
+    response.users = project.project_user.map((project_user) => ({
+      userId: project_user.user_id,
+      userAccount: project_user.user.account,
+      // roleName: project_user.user.
+    }));
+    /**
+     *      "userId": "1825520311295049730",
+                "userAccount": "abdulrehmanjaferworks01233@gmail.com",
+                "roleName": "项目创建者",
+                "funList": [
+                    {
+                        "parentId": 0,
+                        "name": "解散项目",
+                        "url": "Project#del"
+                    }
+                ]
+     */
+    response.tags = project.project_tag;
     response.autoCount = 0;
     response.manualCount = 0;
     response.markQuantity = 0;
-    response.tags = [];
     return response;
   }
 

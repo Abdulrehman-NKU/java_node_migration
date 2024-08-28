@@ -24,7 +24,7 @@ async function bootstrap() {
       },
     }),
   );
-  // app.setGlobalPrefix("/v2/api")
-  await app.listen(3000);
+  // app.setGlobalPrefix('/v2/api');
+  await app.listen(process.env.PORT);
 }
 bootstrap();
