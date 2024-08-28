@@ -25,7 +25,7 @@ export class ProjectController {
     private project_tag_service: ProjectTagService,
   ) {}
 
-  @Post('saveOrUpdate')
+  @Post('save_or_update')
   async save_or_update_project_tag(
     @Body() request_dto: Save_Or_Update_Project_Tag_Request_DTO,
     @User() user: user_with_role_and_urls_with_id_as_bigInt,
@@ -35,7 +35,7 @@ export class ProjectController {
     )();
   }
 
-  @Delete('del')
+  @Delete('/')
   async delete_project_tag(
     @Query('id', Parse_BigInt_Pipe) project_tag_id: bigint,
   ) {

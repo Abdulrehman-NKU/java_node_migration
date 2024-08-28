@@ -14,22 +14,25 @@ export class Trasnform_BigInt_To_String<T> implements NestInterceptor<T, any> {
     next: CallHandler<any>,
   ): Observable<any> | Promise<Observable<any>> {
     return next.handle().pipe(
-      map((data) => {
-        // data instanceof Array
-        if (data.constructor === Array)
-          return data.map((d) => this.convertObjectBigIntPropertyToString(d));
-        return this.convertObjectBigIntPropertyToString(data);
-      }),
+      map((data) => this.parse_big_int_to_string(data)),
       catchError((error) => {
-        console.log(error);
+        console.log(error, "Error at Trasnform_BigInt_To_String");
         throw error;
       }),
     );
   }
 
-  convertObjectBigIntPropertyToString(data: Record<string, any>) {
+  private parse_big_int_to_string(data) {
+    if (data?.constructor === Array)
+      return data.map((d) => this.convert_record_big_int_property_to_string(d));
+    return this.convert_record_big_int_property_to_string(data);
+  }
+
+  private convert_record_big_int_property_to_string(data: Record<string, any>) {
     for (let k in data) {
-      if (typeof data[k] === 'bigint') data[k] = data[k].toString();
+      // typeof null is object
+      if (typeof data[k] === "object" && data[k] !== null) data[k] = this.parse_big_int_to_string(data[k])
+      else if (typeof data[k] === 'bigint') data[k] = data[k].toString();
     }
     return data;
   }

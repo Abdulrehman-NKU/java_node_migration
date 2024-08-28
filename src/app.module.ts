@@ -22,8 +22,15 @@ import { TeamModule } from './team/team.module';
       imports: [EmailConfigModule],
       inject: [EmailConfigService],
       useFactory: async (emailConfigService: EmailConfigService) => {
-        const { email_host, account, password, port, use_ssl } =
-          await emailConfigService.get_email_config();
+        const config = await emailConfigService.get_email_config();
+        if (!config) return {
+          transport: {
+            host: "",
+            port: null,
+          }
+        }
+        
+        const { email_host, account, password, port, use_ssl } = config
         return {
           transport: {
             host: email_host,

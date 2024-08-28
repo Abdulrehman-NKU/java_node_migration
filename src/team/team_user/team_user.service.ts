@@ -34,7 +34,7 @@ export class TeamUserService {
     private team_service: TeamService,
   ) {}
 
-  async add_user(
+  async add(
     team_id: bigint,
     user_id: bigint,
     tx: Prisma_Transaction = null,
@@ -88,21 +88,14 @@ export class TeamUserService {
 
     await this.team_service.check_status_is_not_deleted(invite_code.team_id);
 
-    return this.add_user(invite_code.team_id, user.id);
+    return this.add(invite_code.team_id, user.id);
   }
 
-  async exit_team(
+  async exit(
     { teamId, userId }: Exit_Team_Request_DTO,
     user: user_with_role_and_urls_with_id_as_bigInt,
   ) {
-    const team = await this.prisma.team.findFirst({
-      where: {
-        Id: teamId,
-      },
-    });
-
-    if (!team) throw new NotFoundException({ message: 'Team does not exist' });
-
+    const team = await this.team_service.check_team_exists(teamId)
     if (team.create_id === user.id)
       throw new ForbiddenException({
         message: 'The founder can only disband the team',
@@ -184,13 +177,7 @@ export class TeamUserService {
     { teamId, userId, roleId }: Assign_Role_To_Team_User_Request_DTO,
     user: user_with_role_and_urls_with_id_as_bigInt,
   ) {
-    const team = await this.prisma.team.findFirst({
-      where: {
-        Id: teamId,
-      },
-    });
-
-    if (!team) throw new NotFoundException({ message: 'Team does not exist!' });
+    const team = await this.team_service.check_team_exists(teamId)
 
     if (team.create_id !== user.id)
       throw new ForbiddenException({

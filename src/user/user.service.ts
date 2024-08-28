@@ -24,6 +24,7 @@ import { We_Chat_Login_Request_DTO } from './dto/we_chat_login_request_dto';
 import { Search_User_Request_DTO } from './dto/search_user_request.dto';
 import { Request } from 'express';
 import { RoleUserService } from 'src/role_user/role_user.service';
+import { user_with_role_and_urls_with_id_as_bigInt } from 'src/types';
 
 @Injectable()
 export class UserService {
@@ -151,7 +152,7 @@ export class UserService {
 
   async edit_password(
     edit_password_request_dto: Edit_Password_Request_DTO,
-    user: Property_To_String<users, 'id'>,
+    user: user_with_role_and_urls_with_id_as_bigInt,
   ) {
     // Modification: Getting Current User From the request instead of the thread
     if (

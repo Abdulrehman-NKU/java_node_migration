@@ -33,7 +33,7 @@ export class TeamService {
     private team_invite_code_service: TeamInviteCodeService,
   ) {}
 
-  private async check_team_exists(id: bigint) {
+  async check_team_exists(id: bigint) {
     const team = await this.prisma.team.findFirst({
       where: {
         Id: id,
@@ -117,7 +117,7 @@ export class TeamService {
         },
       });
 
-      await this.team_user_service.add_user(team.Id, user.id, tx);
+      await this.team_user_service.add(team.Id, user.id, tx);
 
       const { val } = await this.system_config_service.get_by_code(
         CONSTANT.TeamCreateRoleIdCode,

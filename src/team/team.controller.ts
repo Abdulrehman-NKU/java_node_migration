@@ -20,6 +20,8 @@ import { Edit_Team_Request_DTO } from './dto/edit_team_request.dto';
 import { Parse_BigInt_Pipe } from 'src/common/custom_pipes/transform_to_big_int.pipe';
 import { Edit_Team_Name_Request_DTO } from './dto/edit_team_name_request.dto';
 import { Edit_Team_Remarks_Request_DTO } from './dto/edit_team_remarks_request.dto';
+import { Reload_Invite_Code_Request_DTO } from './dto/reload_invite_code_request.dto';
+import { Tranfer_Team_User_Role_Request_DTO } from './dto/transfer_team_user_role_request.dto';
 
 @UseGuards(Jwt_Auth_Gurad)
 @UseInterceptors(Trasnform_BigInt_To_String)
@@ -91,37 +93,42 @@ export class TeamController {
   }
 
   @Get('/name') //ByName
-  async get_team_by_name() {
+  async get_team_by_name(@Query() request_dto: Edit_Team_Name_Request_DTO) {
     return this.util_service.tryCatchWrapper(() =>
-      this.team_service.update(request_dto),
+      this.team_service.update_name(request_dto),
     )();
   }
 
-  @Get('/getByMy') // getByMy
-  async get_by_my() {
+  @Get('/user_teams') // getByMy
+  async get_by_my(@User() user: user_with_role_and_urls_with_id_as_bigInt) {
     return this.util_service.tryCatchWrapper(() =>
-      this.team_service.update(request_dto),
+      this.team_service.get_user_teams(user),
     )();
   }
 
   @Get('/team_mates') // GetTeamMates
-  async get_team_mates() {
+  async get_team_mates(
+    @User() user: user_with_role_and_urls_with_id_as_bigInt
+  ) {
     return this.util_service.tryCatchWrapper(() =>
-      this.team_service.update(request_dto),
+      this.team_service.get_team_mates(user),
     )();
   }
 
   @Get('/transfer_mates') // GetTeTrasnfermates
-  async get_te_transfer_mates() {
+  async get_te_transfer_mates(
+    @Body() request_dto: Tranfer_Team_User_Role_Request_DTO,
+    @User() user: user_with_role_and_urls_with_id_as_bigInt
+  ) {
     return this.util_service.tryCatchWrapper(() =>
-      this.team_service.update(request_dto),
+      this.team_service.transfer_creator_role_to_other_user(request_dto,user),
     )();
   }
 
   @Get('/code') // ReloadCode
-  async get_code() {
+  async get_code(@Query() request_dto: Reload_Invite_Code_Request_DTO) {
     return this.util_service.tryCatchWrapper(() =>
-      this.team_service.update(request_dto),
+      this.team_service.reload_code(request_dto),
     )();
   }
 }
