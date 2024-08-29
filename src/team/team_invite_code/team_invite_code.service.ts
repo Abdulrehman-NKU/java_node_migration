@@ -2,6 +2,7 @@ import {
   Injectable,
   ForbiddenException,
   BadRequestException,
+  ConflictException,
 } from '@nestjs/common';
 import * as moment from 'moment';
 import { Prisma_Service } from 'src/prisma/prisma.service';
@@ -17,13 +18,19 @@ export class TeamInviteCodeService {
 
   private CODE_EXPIRY_DAYS = 3;
 
-  async check_code_is_valid(code: string) {
+  async check_code_is_valid(
+    team_id: bigint,
+    category: bigint,
+    do_not_throw = false,
+  ) {
     const invite_code = await this.prisma.team_invite_code.findFirst({
       where: {
-        code,
+        team_id,
+        category,
       },
     });
-    if (!invite_code)
+    if (do_not_throw) return invite_code;
+    else if (!invite_code)
       throw new BadRequestException({
         message: 'The invitation code does not exists!',
       });
@@ -42,8 +49,30 @@ export class TeamInviteCodeService {
   }
 
   // id === team_id
-  async create_invite_code({ id, category }: Reload_Invite_Code_Request_DTO) {
+  async create_invite_code(
+    { id, category }: Reload_Invite_Code_Request_DTO,
+    is_reloading = false,
+  ) {
+    const invite_code = await this.prisma.team_invite_code.findFirst({
+      where: {
+        team_id: id,
+        category,
+      },
+    });
+    if (invite_code && !is_reloading)
+      throw new ConflictException({ message: 'invite_code already exists!' });
+
     const code = id + '-' + this.util_service.createRandomCode(6);
+
+    if (invite_code)
+      return this.prisma.team_invite_code.update({
+        where: {
+          id: invite_code.id,
+        },
+        data: {
+          code,
+        },
+      });
 
     return this.prisma.team_invite_code.create({
       data: {

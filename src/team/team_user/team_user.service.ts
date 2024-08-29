@@ -19,7 +19,7 @@ import { Prisma_Service } from 'src/prisma/prisma.service';
 import { Exit_Team_Request_DTO } from './dto/exit_team_request_dto';
 import { TeamInviteCodeService } from '../team_invite_code/team_invite_code.service';
 import { TeamService } from '../team.service';
-import { Team_Status } from '../team.enum';
+import { Team_Invite_Code, Team_Status } from '../team.enum';
 import { Assign_Role_To_Team_User_Request_DTO } from './dto/assign_team_user_role.request.dto';
 
 @Injectable()
@@ -79,8 +79,10 @@ export class TeamUserService {
     code: string,
     user: user_with_role_and_urls_with_id_as_bigInt,
   ) {
-    const invite_code =
-      await this.team_invite_code_service.check_code_is_valid(code);
+    const invite_code = await this.team_invite_code_service.check_code_is_valid(
+      BigInt(code.split('-')[0]),
+      BigInt(Team_Invite_Code.Code),
+    );
 
     await this.team_service.check_status_is_not_deleted(invite_code.team_id);
 

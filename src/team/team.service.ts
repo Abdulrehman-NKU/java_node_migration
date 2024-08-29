@@ -18,7 +18,7 @@ import { Edit_Team_Name_Request_DTO } from './dto/edit_team_name_request.dto';
 import { Edit_Team_Remarks_Request_DTO } from './dto/edit_team_remarks_request.dto';
 import * as moment from 'moment';
 import { Tranfer_Team_User_Role_Request_DTO } from './dto/transfer_team_user_role_request.dto';
-import { team } from '@prisma/client';
+import { team, team_invite_code } from '@prisma/client';
 import { Reload_Invite_Code_Request_DTO } from './dto/reload_invite_code_request.dto';
 import { TeamInviteCodeService } from './team_invite_code/team_invite_code.service';
 
@@ -208,12 +208,34 @@ export class TeamService {
       });
     }
 
-    return {
+    const invite_code =
+      (await this.team_invite_code_service.check_code_is_valid(
+        id,
+        BigInt(Team_Invite_Code.Code),
+        true,
+      )) ??
+      (await this.team_invite_code_service.create_invite_code({
+        id,
+        category: BigInt(Team_Invite_Code.Code),
+      }));
+
+    const invite_link_code =
+      (await this.team_invite_code_service.check_code_is_valid(
+        id,
+        BigInt(Team_Invite_Code.LinkUrl),
+        true,
+      )) ??
+      (await this.team_invite_code_service.create_invite_code({
+        id,
+        category: BigInt(Team_Invite_Code.LinkUrl),
+      }));
+
+    return this.util_service.snake_to_camel_case_the_object_fields({
       ...team,
-      code: '', // Todo: From TeamInviteCodeService
-      InviteLinkUrlCode: '', // Todo: From TeamInviteCodeService
+      code: invite_code.code,
+      inviteLinkUrlCode: invite_link_code.code,
       userList,
-    };
+    });
   }
 
   async get_by_name(name: string) {
@@ -335,16 +357,19 @@ export class TeamService {
   async reload_code({ id, category }: Reload_Invite_Code_Request_DTO) {
     await this.check_team_exists(id);
     const { code, team_id, create_time, ...rest } =
-      await this.team_invite_code_service.create_invite_code({
-        id,
-        category,
-      });
+      await this.team_invite_code_service.create_invite_code(
+        {
+          id,
+          category,
+        },
+        true,
+      );
 
     return {
       ...rest,
       CreateTime: create_time,
       teamId: team_id,
-      ...(category === BigInt(Team_Invite_Code.LinkUrl)
+      ...(category == BigInt(Team_Invite_Code.LinkUrl)
         ? { inviteLinkUrlCode: code }
         : { code }),
     };

@@ -125,7 +125,7 @@ export class TeamController {
     )();
   }
 
-  @Get('/code') // ReloadCode
+  @Get('/reload_code') // ReloadCode
   async get_code(@Query() request_dto: Reload_Invite_Code_Request_DTO) {
     return this.util_service.tryCatchWrapper(() =>
       this.team_service.reload_code(request_dto),
