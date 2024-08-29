@@ -1,7 +1,7 @@
 import {
   Injectable,
   ConflictException,
-  BadRequestException,
+  NotFoundException,
 } from '@nestjs/common';
 import { Prisma_Service } from 'src/prisma/prisma.service';
 import { Save_Or_Update_Project_Tag_Request_DTO } from './dto/create_project_tag_request.dto';
@@ -50,8 +50,8 @@ export class ProjectTagService {
       },
     });
 
-    if (tag)
-      throw new BadRequestException({
+    if (!tag)
+      throw new NotFoundException({
         message: 'Project tag could not be found!',
       });
 

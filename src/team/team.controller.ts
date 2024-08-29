@@ -66,6 +66,13 @@ export class TeamController {
     )();
   }
 
+  @Get('/name') //ByName
+  async get_team_by_name(@Query('name') name: string) {
+    return this.util_service.tryCatchWrapper(() =>
+      this.team_service.get_by_name(name),
+    )();
+  }
+
   @Patch('/name') //EditName
   async update_team_name(@Body() request_dto: Edit_Team_Name_Request_DTO) {
     return this.util_service.tryCatchWrapper(() =>
@@ -92,36 +99,29 @@ export class TeamController {
     )();
   }
 
-  @Get('/name') //ByName
-  async get_team_by_name(@Query() request_dto: Edit_Team_Name_Request_DTO) {
-    return this.util_service.tryCatchWrapper(() =>
-      this.team_service.update_name(request_dto),
-    )();
-  }
-
-  @Get('/user_teams') // getByMy
+  @Get('/user') // getByMy
   async get_by_my(@User() user: user_with_role_and_urls_with_id_as_bigInt) {
     return this.util_service.tryCatchWrapper(() =>
       this.team_service.get_user_teams(user),
     )();
   }
 
-  @Get('/team_mates') // GetTeamMates
+  @Get('/mate') // GetTeamMates
   async get_team_mates(
-    @User() user: user_with_role_and_urls_with_id_as_bigInt
+    @User() user: user_with_role_and_urls_with_id_as_bigInt,
   ) {
     return this.util_service.tryCatchWrapper(() =>
       this.team_service.get_team_mates(user),
     )();
   }
 
-  @Get('/transfer_mates') // GetTeTrasnfermates
+  @Get('/mate/transfer') // GetTeTrasnfermates
   async get_te_transfer_mates(
     @Body() request_dto: Tranfer_Team_User_Role_Request_DTO,
-    @User() user: user_with_role_and_urls_with_id_as_bigInt
+    @User() user: user_with_role_and_urls_with_id_as_bigInt,
   ) {
     return this.util_service.tryCatchWrapper(() =>
-      this.team_service.transfer_creator_role_to_other_user(request_dto,user),
+      this.team_service.transfer_creator_role_to_other_user(request_dto, user),
     )();
   }
 

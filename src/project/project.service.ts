@@ -130,8 +130,8 @@ export class ProjectService {
         id: project.id,
       },
       data: {
-        start_time: startTime,
-        end_time: endTime,
+        start_time: startTime ? new Date(startTime) : startTime,
+        end_time: endTime ? new Date(endTime) : endTime,
         project_name: projectName,
         remarks,
         ...(sceneCategory
@@ -154,7 +154,18 @@ export class ProjectService {
       include: {
         project_user: {
           include: {
-            user: true,
+            user: {
+              include: {
+                role_user: {
+                  where: {
+                    business_id: id,
+                  },
+                  include: {
+                    role: true,
+                  },
+                },
+              },
+            },
           },
         },
         project_tag: true,
@@ -192,29 +203,22 @@ export class ProjectService {
     response = { ...response, ...project, ...project_config };
     response.createTime = project.create_time;
     response.scene = project_scene;
-    // Todo: Following code need to be modified
-    response.users = project.project_user.map((project_user) => ({
-      userId: project_user.user_id,
-      userAccount: project_user.user.account,
-      // roleName: project_user.user.
+    // Todo: Following funList is logic is pending
+    response.users = project.project_user.map(({ user_id, user }) => ({
+      userId: user_id,
+      userAccount: user.account,
+      roleName: user.role_user.length ? user.role_user[0].role.name : '',
+      funList: [],
     }));
-    /**
-     *      "userId": "1825520311295049730",
-                "userAccount": "abdulrehmanjaferworks01233@gmail.com",
-                "roleName": "项目创建者",
-                "funList": [
-                    {
-                        "parentId": 0,
-                        "name": "解散项目",
-                        "url": "Project#del"
-                    }
-                ]
-     */
+    // @ts-ignore
+    delete response.project_user;
+
     response.tags = project.project_tag;
     response.autoCount = 0;
     response.manualCount = 0;
     response.markQuantity = 0;
-    return response;
+
+    return this.util_service.snake_to_camel_case_the_object_fields(response);
   }
 
   // Modification: Added a check only project owner can mark it as completed
@@ -297,33 +301,25 @@ export class ProjectService {
 
     const projects = await this.prisma.project.findMany({
       distinct: ['id'],
-      select: {
-        id: true,
-        create_time: true,
-        project_no: true,
-        project_name: true,
-        config: true,
-        status: true,
-        remarks: true,
-        creator_id: true,
-        start_time: true,
-        last_update_time: true,
-        end_time: true,
-        category: true,
-        scene_category: true,
+      include: {
+        project_tag: true,
       },
       where: where_clause,
       orderBy: order_by,
     });
 
-    return projects;
+    return projects.map((project) =>
+      this.util_service.snake_to_camel_case_the_object_fields(project, {
+        project_tag: 'tags',
+      }),
+    );
   }
 
   async quick(
     page_size: number,
     user: user_with_role_and_urls_with_id_as_bigInt,
   ) {
-    return this.prisma.project.findMany({
+    const projects = await this.prisma.project.findMany({
       where: {
         status: { not: Project_Enum.STATUS_DELETE },
         OR: [
@@ -342,6 +338,9 @@ export class ProjectService {
       orderBy: [{ id: 'desc' }],
       take: page_size,
     });
+    return projects.map((project) =>
+      this.util_service.snake_to_camel_case_the_object_fields(project),
+    );
   }
 
   async del(

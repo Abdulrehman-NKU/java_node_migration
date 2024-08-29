@@ -40,6 +40,36 @@ export class Util_Service {
     return code;
   }
 
+  snake_to_camel_case_the_object_fields<T>(
+    data: T,
+    specified_fields_name: Record<keyof T, string> | {} = {},
+  ) {
+    const updated_fields_data = {};
+
+    // Handling specificity
+    for (let k in specified_fields_name) {
+      const [field_name, field_data] = [specified_fields_name[k], data[k]];
+      updated_fields_data[field_name] = field_data;
+      delete data[k];
+    }
+
+    for (let k in data) {
+      const field_name = k
+        .split('_')
+        .map((key, idx) => {
+          if (idx === 0) return key;
+          return this.capitalize_first_letter_of_a_string(key);
+        })
+        .join('');
+      updated_fields_data[field_name] = data[k];
+    }
+    return updated_fields_data;
+  }
+
+  private capitalize_first_letter_of_a_string(text: string) {
+    return text.charAt(0).toUpperCase() + text.slice(1);
+  }
+
   async use_tranaction<T = unknown>(
     fn: (tx: Prisma_Transaction) => Promise<T>,
     tx: Prisma_Transaction = null,

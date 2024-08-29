@@ -19,7 +19,7 @@ import { Parse_BigInt_Pipe } from 'src/common/custom_pipes/transform_to_big_int.
 @UseGuards(Jwt_Auth_Gurad)
 @UseInterceptors(Trasnform_BigInt_To_String)
 @Controller('project/tag')
-export class ProjectController {
+export class ProjectTagController {
   constructor(
     private util_service: Util_Service,
     private project_tag_service: ProjectTagService,

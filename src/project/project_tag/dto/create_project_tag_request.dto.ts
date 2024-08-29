@@ -1,15 +1,14 @@
-import { IsEmpty } from '@nestjs/class-validator';
+import { IsNotEmpty_Type_Cast } from 'src/common/decorator/validation.decorator';
 import { Type } from 'class-transformer';
-import { IsOptional } from 'class-validator';
+import { IsNotEmpty, IsOptional } from 'class-validator';
 
 export class Save_Or_Update_Project_Tag_Request_DTO {
   @IsOptional()
   @Type(() => BigInt)
   id: bigint;
-  @IsEmpty({ message: 'projectId is required!' })
-  @Type(() => BigInt)
+  @IsNotEmpty_Type_Cast(BigInt)
   projectId: bigint;
-  @IsEmpty({ message: 'tag is required!' })
+  @IsNotEmpty()
   tag: string;
 }
 

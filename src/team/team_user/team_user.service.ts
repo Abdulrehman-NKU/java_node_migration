@@ -34,11 +34,7 @@ export class TeamUserService {
     private team_service: TeamService,
   ) {}
 
-  async add(
-    team_id: bigint,
-    user_id: bigint,
-    tx: Prisma_Transaction = null,
-  ) {
+  async add(team_id: bigint, user_id: bigint, tx: Prisma_Transaction = null) {
     return this.util_service.use_tranaction(async (tx) => {
       const check_user = await tx.team_user.findFirst({
         where: {
@@ -95,7 +91,7 @@ export class TeamUserService {
     { teamId, userId }: Exit_Team_Request_DTO,
     user: user_with_role_and_urls_with_id_as_bigInt,
   ) {
-    const team = await this.team_service.check_team_exists(teamId)
+    const team = await this.team_service.check_team_exists(teamId);
     if (team.create_id === user.id)
       throw new ForbiddenException({
         message: 'The founder can only disband the team',
@@ -122,7 +118,7 @@ export class TeamUserService {
       await this.role_user_service.remove_user_role(
         {
           userId,
-          businessId: team.Id,
+          businessId: team.id,
           categortyId: BigInt(Role_Category.team_role),
         },
         tx,
@@ -177,7 +173,7 @@ export class TeamUserService {
     { teamId, userId, roleId }: Assign_Role_To_Team_User_Request_DTO,
     user: user_with_role_and_urls_with_id_as_bigInt,
   ) {
-    const team = await this.team_service.check_team_exists(teamId)
+    const team = await this.team_service.check_team_exists(teamId);
 
     if (team.create_id !== user.id)
       throw new ForbiddenException({
@@ -189,7 +185,7 @@ export class TeamUserService {
 
     return await this.role_user_service.add({
       roleId: roleId,
-      businessId: team.Id,
+      businessId: team.id,
       categoryId: BigInt(Role_Category.team_role),
       userId,
     });

@@ -22,6 +22,7 @@ import { ProjectTagService } from './project_tag/project_tag.service';
     SystemConfigModule,
     RoleUserModule,
     ProjectTagModule,
+    ProjectTagModule,
   ],
   providers: [
     ProjectService,

@@ -546,7 +546,7 @@ model system_config {
 }
 
 model team {
-  Id               BigInt             @id @default(autoincrement())
+  id               BigInt             @id @default(autoincrement())
   create_time      DateTime           @default(now())
   no               String?            @db.VarChar(255)
   name             String?            @db.VarChar(255)
@@ -562,7 +562,7 @@ model team {
 model team_invite_code {
   id          BigInt   @id @default(autoincrement())
   create_time DateTime @default(now())
-  team        team     @relation(fields: [team_id], references: [Id])
+  team        team     @relation(fields: [team_id], references: [id])
   team_id     BigInt
   category    BigInt?
   code        String?  @db.VarChar(255)
@@ -571,7 +571,7 @@ model team_invite_code {
 model team_user {
   id          BigInt   @id @default(autoincrement())
   create_time DateTime @default(now())
-  team        team     @relation(fields: [team_id], references: [Id])
+  team        team     @relation(fields: [team_id], references: [id])
   team_id     BigInt
   user        users    @relation(fields: [user_id], references: [id])
   user_id     BigInt

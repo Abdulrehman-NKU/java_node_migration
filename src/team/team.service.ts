@@ -36,7 +36,7 @@ export class TeamService {
   async check_team_exists(id: bigint) {
     const team = await this.prisma.team.findFirst({
       where: {
-        Id: id,
+        id,
       },
     });
 
@@ -63,7 +63,7 @@ export class TeamService {
   ) {
     const team = await this.prisma.team.findFirst({
       where: {
-        Id: team_id,
+        id: team_id,
       },
     });
 
@@ -78,7 +78,7 @@ export class TeamService {
   async check_status_is_not_deleted(id: bigint) {
     const team = await this.prisma.team.findFirst({
       where: {
-        Id: id,
+        id,
       },
     });
 
@@ -117,7 +117,7 @@ export class TeamService {
         },
       });
 
-      await this.team_user_service.add(team.Id, user.id, tx);
+      await this.team_user_service.add(team.id, user.id, tx);
 
       const { val } = await this.system_config_service.get_by_code(
         CONSTANT.TeamCreateRoleIdCode,
@@ -128,7 +128,7 @@ export class TeamService {
       await this.role_user_service.add({
         userId: user.id,
         categoryId: BigInt(Role_Category.project_role),
-        businessId: team.Id,
+        businessId: team.id,
         roleId: BigInt(val),
       });
 
@@ -149,7 +149,7 @@ export class TeamService {
 
     return this.prisma.team.update({
       where: {
-        Id: id,
+        id,
       },
       data: {
         name,
@@ -165,7 +165,7 @@ export class TeamService {
     await this.check_status_is_not_deleted(id);
     return this.prisma.team.update({
       where: {
-        Id: id,
+        id,
       },
       data: {
         name,
@@ -177,7 +177,7 @@ export class TeamService {
     await this.check_status_is_not_deleted(id);
     return this.prisma.team.update({
       where: {
-        Id: id,
+        id,
       },
       data: {
         remarks,
@@ -188,7 +188,7 @@ export class TeamService {
   async get_by_id(id: bigint, user: user_with_role_and_urls_with_id_as_bigInt) {
     const team = await this.check_team_exists(id);
 
-    const team_users = await this.team_user_service.get_all_team_users(team.Id);
+    const team_users = await this.team_user_service.get_all_team_users(team.id);
 
     const userList = [];
 
@@ -235,7 +235,7 @@ export class TeamService {
 
     return this.prisma.team.update({
       where: {
-        Id: id,
+        id,
       },
       data: {
         name: team.name + '__' + moment(),
@@ -266,27 +266,15 @@ export class TeamService {
             },
           },
         },
+        team_invite_code: true,
       },
     });
 
-    return teams.map(
-      ({
-        Id,
-        create_time,
-        create_id,
-        trade_name,
-        team_size,
-        _count,
-        ...rest
-      }) => ({
+    return teams.map(({ _count, team_invite_code, ...rest }) =>
+      this.util_service.snake_to_camel_case_the_object_fields({
         ...rest,
-        id: Id,
-        createTime: create_time,
-        createId: create_id,
-        tradeName: trade_name,
-        teamSize: team_size,
-        InviteCode: '',
-        UserCount: _count.team_user,
+        userCount: _count.team_user,
+        inviteCode: team_invite_code.length ? team_invite_code[0].code : '',
       }),
     );
   }
@@ -336,7 +324,7 @@ export class TeamService {
 
     return this.prisma.team.update({
       where: {
-        Id: teamId,
+        id: teamId,
       },
       data: {
         create_id: userId,
