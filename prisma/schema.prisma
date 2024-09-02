@@ -133,15 +133,16 @@ model email_config {
 }
 
 model fun_api {
-  id           BigInt   @id @default(autoincrement())
-  create_time  DateTime @default(now())
+  id           BigInt         @id @default(autoincrement())
+  create_time  DateTime       @default(now())
   parent_id    Int
-  name         String?  @db.VarChar(255)
-  request_mode String?  @db.VarChar(255)
-  url          String?  @db.VarChar(255)
-  remarks      String?  @db.VarChar(255)
-  icon         String?  @db.VarChar(255)
+  name         String?        @db.VarChar(255)
+  request_mode String?        @db.VarChar(255)
+  url          String?        @db.VarChar(255)
+  remarks      String?        @db.VarChar(255)
+  icon         String?        @db.VarChar(255)
   category     Int
+  role_fun_api role_fun_api[]
 }
 
 model model_version {
@@ -484,18 +485,41 @@ model rect_data {
   @@index([project_id], map: "idx_project_id")
 }
 
+model role_fun_api {
+  id          BigInt   @id @default(autoincrement())
+  create_time DateTime
+  role_id     BigInt
+  fun_api_id  BigInt
+  role        role     @relation(fields: [role_id], references: [id])
+  fun_api     fun_api  @relation(fields: [fun_api_id], references: [id])
+}
+
 model role {
-  id          BigInt      @id @default(autoincrement())
-  create_time DateTime    @default(now())
-  name        String?     @db.VarChar(255)
-  parent_id   BigInt
-  order_num   Int
-  remarks     String?     @db.VarChar(255)
-  create_id   BigInt
-  status      Int
-  category_id Int
-  tag         String?     @db.VarChar(255)
-  role_user   role_user[]
+  id           BigInt         @id @default(autoincrement())
+  create_time  DateTime       @default(now())
+  name         String?        @db.VarChar(255)
+  parent_id    BigInt
+  order_num    Int
+  remarks      String?        @db.VarChar(255)
+  create_id    BigInt
+  status       Int
+  category_id  Int
+  tag          String?        @db.VarChar(255)
+  role_user    role_user[]
+  role_fun_api role_fun_api[]
+}
+
+model role_user {
+  id          BigInt        @id @default(autoincrement())
+  create_time DateTime      @default(now())
+  role_id     BigInt
+  role        role          @relation(fields: [role_id], references: [id])
+  user        users         @relation(fields: [user_id], references: [id])
+  user_id     BigInt
+  category    role_category @relation(fields: [category_id], references: [Id])
+  category_id BigInt
+
+  business_id BigInt
 }
 
 model role_category {
@@ -505,26 +529,6 @@ model role_category {
   Remarks    String?     @db.VarChar(255)
   IsDeleted  Int
   role_user  role_user[]
-}
-
-model role_fun_api {
-  id          BigInt   @id @default(autoincrement())
-  create_time DateTime
-  role_id     BigInt
-  fun_api_id  BigInt
-}
-
-model role_user {
-  id          BigInt        @id @default(autoincrement())
-  create_time DateTime      @default(now())
-  role        role          @relation(fields: [role_id], references: [id])
-  role_id     BigInt
-  user        users         @relation(fields: [user_id], references: [id])
-  user_id     BigInt
-  category    role_category @relation(fields: [category_id], references: [Id])
-  category_id BigInt
-
-  business_id BigInt
 }
 
 model swagger_config {

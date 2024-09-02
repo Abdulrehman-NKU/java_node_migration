@@ -6,7 +6,7 @@ import {
   Inject,
   forwardRef,
 } from '@nestjs/common';
-import { CONSTANT, Role_Category } from 'src/Constants';
+import { CONSTANT, Role_Category, Roles } from 'src/Constants';
 import { RoleUserService } from 'src/role_user/role_user.service';
 import { SystemConfigService } from 'src/system_config/system_config.service';
 import {
@@ -34,7 +34,12 @@ export class TeamUserService {
     private team_service: TeamService,
   ) {}
 
-  async add(team_id: bigint, user_id: bigint, tx: Prisma_Transaction = null) {
+  async add(
+    team_id: bigint,
+    user_id: bigint,
+    tx: Prisma_Transaction = null,
+    role_id: bigint = null,
+  ) {
     return this.util_service.use_tranaction(async (tx) => {
       const check_user = await tx.team_user.findFirst({
         where: {
@@ -63,7 +68,7 @@ export class TeamUserService {
 
       await this.role_user_service.add(
         {
-          roleId: BigInt(val),
+          roleId: role_id ?? BigInt(val),
           userId: user_id,
           businessId: team_id,
           categoryId: BigInt(Role_Category.team_role),
@@ -86,7 +91,12 @@ export class TeamUserService {
 
     await this.team_service.check_status_is_not_deleted(invite_code.team_id);
 
-    return this.add(invite_code.team_id, user.id);
+    return this.add(
+      invite_code.team_id,
+      user.id,
+      null,
+      BigInt(Roles.team_member),
+    );
   }
 
   async exit(
@@ -131,7 +141,7 @@ export class TeamUserService {
   }
 
   async get_all_team_users(team_id: bigint) {
-    return this.prisma.team_user.findMany({
+    const team_users = await this.prisma.team_user.findMany({
       where: {
         team_id,
       },
@@ -148,23 +158,42 @@ export class TeamUserService {
         },
       },
     });
+    return team_users.map((t_user) => ({
+      ...t_user,
+      user: {
+        ...t_user.user,
+        role_user: t_user.user.role_user.filter(
+          (r_user) => r_user.business_id == team_id,
+        ),
+      },
+    }));
   }
 
   async get_user_team_members(user: user_with_role_and_urls_with_id_as_bigInt) {
-    const team_users = await this.prisma.team_user.findMany({
-      where: {
-        team: {
-          status: {
-            not: Team_Status.delete,
+    const team_ids = (
+      await this.prisma.team_user.findMany({
+        where: {
+          team: {
+            status: {
+              not: Team_Status.delete,
+            },
           },
+          user_id: user.id,
         },
-        user_id: user.id,
+      })
+    ).map((t_user) => t_user.team_id);
+
+    const team_users = await this.prisma.team_user.findMany({
+      distinct: ['user_id'],
+      where: {
+        team_id: {
+          in: team_ids,
+        },
       },
       include: {
         user: true,
       },
     });
-
     return team_users.map(({ user }) => ({
       id: user.id,
       account: user.account,

@@ -18,10 +18,6 @@ import { ProjectUserService } from './project_user/project_user.service';
 import { ProjectSceneService } from './project_scene/project_scene.service';
 import { Get_Project_By_Id_Response_DTO } from './dto/get_project_by_id_response.dto';
 import { Get_All_Project_Request_DTO } from './dto/get_all_project_request.dto';
-import {
-  Add_Project_User_Request_DTO,
-  Get_Project_Role_Request_DTO,
-} from './dto/add_project_user_request.dto';
 import { SystemConfigService } from 'src/system_config/system_config.service';
 import { CONSTANT, Role_Category, Roles } from 'src/Constants';
 import { RoleUserService } from 'src/role_user/role_user.service';
@@ -369,56 +365,5 @@ export class ProjectService {
         status: Project_Enum.STATUS_DELETE,
       },
     });
-  }
-
-  async add_project_user(
-    request_dto: Add_Project_User_Request_DTO,
-    user: user_with_role_and_urls_with_id_as_bigInt,
-  ) {
-    return this.project_user_service.add_user(request_dto, user);
-  }
-
-  async delete_project_user(
-    request_dto: Add_Project_User_Request_DTO,
-    user: user_with_role_and_urls_with_id_as_bigInt,
-  ) {
-    return this.project_user_service.delete_user(request_dto, user);
-  }
-
-  async add_user_role(
-    { projectId, roleId, userId }: Get_Project_Role_Request_DTO,
-    user: user_with_role_and_urls_with_id_as_bigInt,
-  ) {
-    if (user.id === userId) {
-      throw new ForbiddenException({
-        message:
-          "Operation failed, you don't have permission to perform this action, you cannot authorize yourself!",
-      });
-    }
-    const { val } = await this.system_config_service.get_by_code(
-      CONSTANT.ProjectCreateRoleIdCode,
-      String(Roles.project_creator),
-    );
-
-    if (!val)
-      throw new BadRequestException({
-        message: 'Creator role ID is not configured!',
-      });
-    else if (BigInt(val) === roleId)
-      throw new ForbiddenException({
-        message: 'Cannot assign the creator role!',
-      });
-
-    try {
-      return this.role_user_service.add({
-        roleId,
-        userId,
-        categoryId: BigInt(Role_Category.project_role),
-        businessId: projectId,
-      });
-    } catch (error) {
-      console.log(error, 'Error role_user_service.add');
-      throw new InternalServerErrorException({ message: 'Failed to set role' });
-    }
   }
 }

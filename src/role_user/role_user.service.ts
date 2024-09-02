@@ -52,6 +52,23 @@ export class RoleUserService {
     });
   }
 
+  async find_fun_api_by_role_id(role_id: bigint) {
+    const role_fun_apis = (
+      await this.prisma.role_fun_api.findMany({
+        where: {
+          role_id,
+        },
+      })
+    ).map((role_fun) => role_fun.fun_api_id);
+    return this.prisma.fun_api.findMany({
+      where: {
+        id: {
+          in: role_fun_apis,
+        },
+      },
+    });
+  }
+
   find_roles_fun_api(user_roles: role_user[]) {
     return this.prisma.fun_api.findMany({
       where: {

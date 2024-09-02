@@ -117,20 +117,12 @@ export class TeamService {
         },
       });
 
-      await this.team_user_service.add(team.id, user.id, tx);
-
-      const { val } = await this.system_config_service.get_by_code(
-        CONSTANT.TeamCreateRoleIdCode,
-        undefined,
+      await this.team_user_service.add(
+        team.id,
+        user.id,
         tx,
+        BigInt(Roles.team_creator),
       );
-
-      await this.role_user_service.add({
-        userId: user.id,
-        categoryId: BigInt(Role_Category.project_role),
-        businessId: team.id,
-        roleId: BigInt(val),
-      });
 
       return team;
     });
@@ -191,6 +183,16 @@ export class TeamService {
     const team_users = await this.team_user_service.get_all_team_users(team.id);
 
     const userList = [];
+
+    console.log(
+      team_users[0].user,
+      team_users.map((tUser) =>
+        tUser.user.role_user.map((role_user) => ({
+          ...role_user.role,
+          ...role_user,
+        })),
+      ),
+    );
 
     for (const { user_id, user: tUser, create_time } of team_users) {
       const team_user_role = tUser.role_user[0].role;
@@ -281,11 +283,7 @@ export class TeamService {
       include: {
         _count: {
           select: {
-            team_user: {
-              where: {
-                user_id: user.id,
-              },
-            },
+            team_user: true,
           },
         },
         team_invite_code: true,
