@@ -21,6 +21,7 @@ import { user_with_role_and_urls_with_id_as_bigInt } from 'src/types';
 import { IsNotEmpty } from 'class-validator';
 import { Parse_BigInt_Pipe } from 'src/common/custom_pipes/transform_to_big_int.pipe';
 import { Assign_Role_To_Team_User_Request_DTO } from './dto/assign_team_user_role.request.dto';
+import { Remove_From_Team_Request_DTO } from './dto/remove_from_team.request.dto';
 
 @UseGuards(Jwt_Auth_Gurad)
 @UseInterceptors(Trasnform_BigInt_To_String)
@@ -39,10 +40,12 @@ export class TeamUserController {
     )();
   }
 
-  @HttpCode(HttpStatus.NOT_IMPLEMENTED)
-  @Delete('/') // TODO: RemoveUser
-  async remove_team_user() {
-    return 'NOT IMPLEMENTED';
+  @HttpCode(HttpStatus.OK)
+  @Delete('/remove')
+  async remove_team_user(@Query() request_dto: Remove_From_Team_Request_DTO) {
+    return this.util_service.tryCatchWrapper(() =>
+      this.team_user_service.remove(request_dto),
+    )();
   }
 
   @Get('/join') //join
@@ -71,7 +74,7 @@ export class TeamUserController {
     @User() user: user_with_role_and_urls_with_id_as_bigInt,
   ) {
     return this.util_service.tryCatchWrapper(() =>
-      this.team_user_service.assign_role(request_dto, user),
+      this.team_user_service.update_role(request_dto, user),
     )();
   }
 }

@@ -18,7 +18,7 @@ import { Edit_Team_Name_Request_DTO } from './dto/edit_team_name_request.dto';
 import { Edit_Team_Remarks_Request_DTO } from './dto/edit_team_remarks_request.dto';
 import * as moment from 'moment';
 import { Tranfer_Team_User_Role_Request_DTO } from './dto/transfer_team_user_role_request.dto';
-import { team, team_invite_code } from '@prisma/client';
+import { role, team, team_invite_code } from '@prisma/client';
 import { Reload_Invite_Code_Request_DTO } from './dto/reload_invite_code_request.dto';
 import { TeamInviteCodeService } from './team_invite_code/team_invite_code.service';
 
@@ -177,36 +177,78 @@ export class TeamService {
     });
   }
 
+  private async get_fun_list_based_on_role_and_authentication({
+    team_user_user_id,
+    logged_in_user_role_id,
+    logged_in_user,
+    team_user_role,
+  }: {
+    team_user_user_id: bigint;
+    logged_in_user_role_id: bigint;
+    logged_in_user: user_with_role_and_urls_with_id_as_bigInt;
+    team_user_role: role;
+  }) {
+    const fun_api_list = (
+      await this.role_user_service.find_fun_api_by_role_id(team_user_role.id)
+    ).map(({ fun_api }) => fun_api);
+
+    const filter_fun_list = (urls_list: string[]) => {
+      return fun_api_list.filter(({ url }) => urls_list.includes(url));
+    };
+
+    if (
+      logged_in_user.id === team_user_user_id &&
+      team_user_role.id !== BigInt(Roles.team_creator)
+    )
+      return filter_fun_list(['Team#exit']);
+    else if (
+      logged_in_user_role_id === BigInt(Roles.team_admin) &&
+      team_user_role.id === BigInt(Roles.team_member)
+    )
+      return filter_fun_list(['Team#remove']);
+    else if (logged_in_user_role_id === BigInt(Roles.team_creator)) {
+      if (team_user_role.id === BigInt(Roles.team_member))
+        return filter_fun_list(['Team#manager', 'Team#remove']);
+      else if (team_user_role.id === BigInt(Roles.team_admin))
+        return filter_fun_list(['Team#removeManager', 'Team#remove']);
+    }
+  }
+
   async get_by_id(id: bigint, user: user_with_role_and_urls_with_id_as_bigInt) {
     const team = await this.check_team_exists(id);
 
     const team_users = await this.team_user_service.get_all_team_users(team.id);
 
-    const userList = [];
+    const user_list_promises = [];
 
-    console.log(
-      team_users[0].user,
-      team_users.map((tUser) =>
-        tUser.user.role_user.map((role_user) => ({
-          ...role_user.role,
-          ...role_user,
-        })),
-      ),
-    );
+    const { id: logged_in_user_role_id } = (
+      await this.prisma.role_user.findFirst({
+        where: {
+          user_id: user.id,
+          business_id: id,
+        },
+        include: {
+          role: true,
+        },
+      })
+    ).role;
 
-    for (const { user_id, user: tUser, create_time } of team_users) {
-      const team_user_role = tUser.role_user[0].role;
-      userList.push({
+    for (const { user_id, user: t_user, create_time } of team_users) {
+      const team_user_role = t_user.role_user[0].role;
+
+      user_list_promises.push({
         userId: user_id,
-        account: tUser.account,
+        account: t_user.account,
         joinTime: create_time,
-        nickName: tUser.nick_name,
+        nickName: t_user.nick_name,
         roleName: team_user_role.name,
         roleTag: team_user_role.tag,
-        funList: [], // Todo: Need to be done, very large logic
-        /**
-         * Note: Category is linked with fun_api
-         */
+        funList: await this.get_fun_list_based_on_role_and_authentication({
+          logged_in_user: user,
+          logged_in_user_role_id,
+          team_user_role,
+          team_user_user_id: user_id,
+        }),
       });
     }
 
@@ -232,11 +274,13 @@ export class TeamService {
         category: BigInt(Team_Invite_Code.LinkUrl),
       }));
 
+    const user_list = await Promise.all(user_list_promises);
+
     return this.util_service.snake_to_camel_case_the_object_fields({
       ...team,
       code: invite_code.code,
       inviteLinkUrlCode: invite_link_code.code,
-      userList,
+      userList: user_list,
     });
   }
 

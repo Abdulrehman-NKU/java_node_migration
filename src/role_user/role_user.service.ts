@@ -29,6 +29,24 @@ export class RoleUserService {
     }, tx);
   }
 
+  async update(
+    { userId, roleId, categoryId, businessId }: Role_To_User_Request_DTO,
+    tx: Prisma_Transaction = null,
+  ) {
+    return this.util_service.use_tranaction(async (tx) => {
+      return tx.role_user.updateMany({
+        where: {
+          business_id: businessId,
+          user_id: userId,
+          category_id: categoryId,
+        },
+        data: {
+          role_id: roleId,
+        },
+      });
+    }, tx);
+  }
+
   async remove_user_role(
     { userId, businessId, categortyId }: Remove_User_Role_Request_DTO,
     tx: Prisma_Transaction = null,
@@ -52,21 +70,33 @@ export class RoleUserService {
     });
   }
 
-  async find_fun_api_by_role_id(role_id: bigint) {
-    const role_fun_apis = (
-      await this.prisma.role_fun_api.findMany({
-        where: {
-          role_id,
-        },
-      })
-    ).map((role_fun) => role_fun.fun_api_id);
-    return this.prisma.fun_api.findMany({
+  async find_fun_api_by_role_id(role_id: bigint, category?: number) {
+    return await this.prisma.role_fun_api.findMany({
       where: {
-        id: {
-          in: role_fun_apis,
-        },
+        role_id,
+        // fun_api: {
+        //   category,
+        // },
+      },
+      include: {
+        fun_api: true,
+        role: true,
       },
     });
+  }
+
+  async find_fun_api_by_user_id(user_id: bigint, business_id: bigint) {
+    const { role } = await this.prisma.role_user.findFirst({
+      where: {
+        business_id,
+        user_id,
+      },
+      include: {
+        role: true,
+      },
+    });
+
+    return this.find_fun_api_by_role_id(role.id);
   }
 
   find_roles_fun_api(user_roles: role_user[]) {

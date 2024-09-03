@@ -21,6 +21,7 @@ import { TeamInviteCodeService } from '../team_invite_code/team_invite_code.serv
 import { TeamService } from '../team.service';
 import { Team_Invite_Code, Team_Status } from '../team.enum';
 import { Assign_Role_To_Team_User_Request_DTO } from './dto/assign_team_user_role.request.dto';
+import { Remove_From_Team_Request_DTO } from './dto/remove_from_team.request.dto';
 
 @Injectable()
 export class TeamUserService {
@@ -100,7 +101,7 @@ export class TeamUserService {
   }
 
   async exit(
-    { teamId, userId }: Exit_Team_Request_DTO,
+    { teamId }: Exit_Team_Request_DTO,
     user: user_with_role_and_urls_with_id_as_bigInt,
   ) {
     const team = await this.team_service.check_team_exists(teamId);
@@ -112,7 +113,7 @@ export class TeamUserService {
     const team_user = await this.prisma.team_user.findFirst({
       where: {
         team_id: teamId,
-        user_id: userId,
+        user_id: user.id,
       },
     });
     if (team_user === null)
@@ -127,17 +128,51 @@ export class TeamUserService {
         },
       });
 
-      await this.role_user_service.remove_user_role(
+      return await this.role_user_service.remove_user_role(
         {
-          userId,
+          userId: user.id,
           businessId: team.id,
           categortyId: BigInt(Role_Category.team_role),
         },
         tx,
       );
     });
+  }
 
-    return 'Success';
+  async remove({ id: team_id, userId }: Remove_From_Team_Request_DTO) {
+    const team = await this.team_service.check_team_exists(team_id);
+    if (team.create_id === userId)
+      throw new ForbiddenException({
+        message: 'The founder can only disband the team',
+      });
+
+    const team_user = await this.prisma.team_user.findFirst({
+      where: {
+        team_id,
+        user_id: userId,
+      },
+    });
+    if (team_user === null)
+      throw new NotFoundException({
+        message: 'The member has left the team, please refresh',
+      });
+
+    await this.util_service.use_tranaction(async (tx) => {
+      await tx.team_user.delete({
+        where: {
+          id: team_user.id,
+        },
+      });
+
+      return await this.role_user_service.remove_user_role(
+        {
+          userId: userId,
+          businessId: team.id,
+          categortyId: BigInt(Role_Category.team_role),
+        },
+        tx,
+      );
+    });
   }
 
   async get_all_team_users(team_id: bigint) {
@@ -200,7 +235,7 @@ export class TeamUserService {
     }));
   }
 
-  async assign_role(
+  async update_role(
     { teamId, userId, roleId }: Assign_Role_To_Team_User_Request_DTO,
     user: user_with_role_and_urls_with_id_as_bigInt,
   ) {
@@ -214,11 +249,11 @@ export class TeamUserService {
 
     await this.system_config_service.get_by_code(CONSTANT.TeamCreateRoleIdCode);
 
-    return await this.role_user_service.add({
-      roleId: roleId,
-      businessId: team.id,
-      categoryId: BigInt(Role_Category.team_role),
+    return this.role_user_service.update({
       userId,
+      roleId,
+      businessId: teamId,
+      categoryId: BigInt(Role_Category.team_role),
     });
   }
 }
