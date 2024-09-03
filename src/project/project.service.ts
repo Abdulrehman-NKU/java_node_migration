@@ -21,6 +21,7 @@ import { Get_All_Project_Request_DTO } from './dto/get_all_project_request.dto';
 import { SystemConfigService } from 'src/system_config/system_config.service';
 import { CONSTANT, Role_Category, Roles } from 'src/Constants';
 import { RoleUserService } from 'src/role_user/role_user.service';
+import { project_user, role, role_user, users } from '@prisma/client';
 
 @Injectable()
 export class ProjectService {
@@ -217,6 +218,26 @@ export class ProjectService {
     return this.util_service.snake_to_camel_case_the_object_fields(response);
   }
 
+  private async get_fun_list(
+    project_users: project_user_with_role_user_and_role[],
+    authenticated_user: user_with_role_and_urls_with_id_as_bigInt,
+  ) {
+    const users = [];
+    for (let { user_id, user } of project_users) {
+      // const project_user_role = user.
+      // const fun_api_list = this.role_user_service.find_fun_api_by_role_id(user.ro)
+      // if (user_id === authenticated_user.id) {
+
+      // }
+      return {
+        userId: user_id,
+        userAccount: user.account,
+        roleName: user.role_user.length ? user.role_user[0].role.name : '',
+        funList: [],
+      };
+    }
+  }
+
   // Modification: Added a check only project owner can mark it as completed
   async complete(id: bigint, user: user_with_role_and_urls_with_id_as_bigInt) {
     const project = await this.prisma.project.findFirst({
@@ -366,4 +387,10 @@ export class ProjectService {
       },
     });
   }
+}
+
+interface project_user_with_role_user_and_role extends project_user {
+  user: users & {
+    role_user: role_user & { role: role }[];
+  };
 }

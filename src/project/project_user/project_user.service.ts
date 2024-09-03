@@ -15,6 +15,7 @@ import {
   Add_Project_User_Request_DTO,
   Get_Project_User_Role_Request_DTO,
 } from './dto/add_project_user_request.dto';
+import { Util_Service } from 'src/util/util.service';
 
 @Injectable()
 export class ProjectUserService {
@@ -22,6 +23,7 @@ export class ProjectUserService {
     private prisma: Prisma_Service,
     private system_config_service: SystemConfigService,
     private role_user_service: RoleUserService,
+    private util_service: Util_Service,
   ) {}
 
   async get_by_project_id(project_id: bigint) {
@@ -55,11 +57,23 @@ export class ProjectUserService {
     if (project_member)
       throw new ConflictException({ message: 'Member already exists!' });
 
-    return this.prisma.project_user.create({
-      data: {
-        project_id: projectId,
-        user_id: userId,
-      },
+    return await this.util_service.use_tranaction(async (tx) => {
+      await this.prisma.project_user.create({
+        data: {
+          project_id: projectId,
+          user_id: userId,
+        },
+      });
+
+      return await this.role_user_service.add(
+        {
+          userId,
+          roleId: BigInt(Roles.project_member),
+          businessId: projectId,
+          categoryId: BigInt(Role_Category.project_role),
+        },
+        tx,
+      );
     });
   }
 
