@@ -226,6 +226,7 @@ export class TeamService {
         where: {
           user_id: user.id,
           business_id: id,
+          category_id: Role_Category.team_role,
         },
         include: {
           role: true,

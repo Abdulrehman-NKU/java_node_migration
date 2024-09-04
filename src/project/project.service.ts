@@ -35,6 +35,70 @@ export class ProjectService {
     private role_user_service: RoleUserService,
   ) {}
 
+  private async get_user_with_fun_list(
+    project_users: project_user_with_role_user_and_role[],
+    authenticated_user: user_with_role_and_urls_with_id_as_bigInt,
+  ) {
+    const users = [];
+
+    const logged_in_user_role_id = (
+      await this.prisma.role_user.findFirst({
+        where: {
+          user_id: authenticated_user.id,
+          business_id: project_users[0].project_id,
+          category_id: BigInt(Role_Category.project_role),
+        },
+        include: {
+          role: true,
+        },
+      })
+    ).role.id;
+
+    for (const { user_id, user } of project_users) {
+      const project_user_role = user.role_user[0].role;
+
+      const fun_api_list = (
+        await this.role_user_service.find_fun_api_by_role_id(
+          project_user_role.id,
+        )
+      ).map(({ fun_api }) => fun_api);
+
+      const filter_fun_list = (urls_list: string[]) => {
+        console.log({ urls_list, fun_api_list, project_user_role });
+        users.push({
+          userId: user_id,
+          userAccount: user.account,
+          roleName: user.role_user.length ? user.role_user[0].role.name : '',
+          funList: fun_api_list.filter(({ url }) => urls_list.includes(url)),
+        });
+      };
+
+      console.log({ authenticated_user, user_id, project_user_role });
+
+      if (
+        authenticated_user.id === user_id &&
+        project_user_role.id === BigInt(Roles.project_creator)
+      )
+        filter_fun_list(['Project#del']);
+      else if (authenticated_user.id === user_id)
+        filter_fun_list(['Project#exit']);
+      else if (
+        logged_in_user_role_id === BigInt(Roles.project_manager) &&
+        project_user_role.id === BigInt(Roles.project_member)
+      )
+        filter_fun_list(['Project#remove']);
+      else if (logged_in_user_role_id === BigInt(Roles.project_creator)) {
+        if (project_user_role.id === BigInt(Roles.project_member))
+          filter_fun_list(['Project#manager', 'Project#remove']);
+        else if (project_user_role.id === BigInt(Roles.project_manager))
+          filter_fun_list(['Project#removeManager', 'Project#remove']);
+        else filter_fun_list([]);
+      } else filter_fun_list([]); // Handling some unexpected_case
+    }
+
+    return users;
+  }
+
   async add_empty(
     { category }: Add_Empty_Project_Request_DTO,
     user: user_with_role_and_urls_with_id_as_bigInt,
@@ -156,6 +220,7 @@ export class ProjectService {
                 role_user: {
                   where: {
                     business_id: id,
+                    category_id: Role_Category.project_role,
                   },
                   include: {
                     role: true,
@@ -200,42 +265,21 @@ export class ProjectService {
     response = { ...response, ...project, ...project_config };
     response.createTime = project.create_time;
     response.scene = project_scene;
-    // Todo: Following funList is logic is pending
-    response.users = project.project_user.map(({ user_id, user }) => ({
-      userId: user_id,
-      userAccount: user.account,
-      roleName: user.role_user.length ? user.role_user[0].role.name : '',
-      funList: [],
-    }));
+    response.users = await this.get_user_with_fun_list(
+      project.project_user,
+      user,
+    );
     // @ts-ignore
     delete response.project_user;
 
     response.tags = project.project_tag;
+
+    // Todo: Following Count and Quantity logic is pending
     response.autoCount = 0;
     response.manualCount = 0;
     response.markQuantity = 0;
 
     return this.util_service.snake_to_camel_case_the_object_fields(response);
-  }
-
-  private async get_fun_list(
-    project_users: project_user_with_role_user_and_role[],
-    authenticated_user: user_with_role_and_urls_with_id_as_bigInt,
-  ) {
-    const users = [];
-    for (let { user_id, user } of project_users) {
-      // const project_user_role = user.
-      // const fun_api_list = this.role_user_service.find_fun_api_by_role_id(user.ro)
-      // if (user_id === authenticated_user.id) {
-
-      // }
-      return {
-        userId: user_id,
-        userAccount: user.account,
-        roleName: user.role_user.length ? user.role_user[0].role.name : '',
-        funList: [],
-      };
-    }
   }
 
   // Modification: Added a check only project owner can mark it as completed
@@ -281,7 +325,7 @@ export class ProjectService {
             {
               project_user: {
                 some: {
-                  id: user.id,
+                  user_id: user.id,
                 },
               },
             },
@@ -391,6 +435,6 @@ export class ProjectService {
 
 interface project_user_with_role_user_and_role extends project_user {
   user: users & {
-    role_user: role_user & { role: role }[];
+    role_user: (role_user & { role: role })[];
   };
 }

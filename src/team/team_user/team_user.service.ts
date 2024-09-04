@@ -176,7 +176,7 @@ export class TeamUserService {
   }
 
   async get_all_team_users(team_id: bigint) {
-    const team_users = await this.prisma.team_user.findMany({
+    return await this.prisma.team_user.findMany({
       where: {
         team_id,
       },
@@ -184,6 +184,10 @@ export class TeamUserService {
         user: {
           include: {
             role_user: {
+              where: {
+                category_id: Role_Category.team_role,
+                business_id: team_id,
+              },
               include: {
                 role: true,
                 category: true,
@@ -193,15 +197,6 @@ export class TeamUserService {
         },
       },
     });
-    return team_users.map((t_user) => ({
-      ...t_user,
-      user: {
-        ...t_user.user,
-        role_user: t_user.user.role_user.filter(
-          (r_user) => r_user.business_id == team_id,
-        ),
-      },
-    }));
   }
 
   async get_user_team_members(user: user_with_role_and_urls_with_id_as_bigInt) {

@@ -1,7 +1,7 @@
 import {
   Injectable,
   ForbiddenException,
-  NotImplementedException,
+  NotFoundException,
   InternalServerErrorException,
   BadRequestException,
   ConflictException,
@@ -26,6 +26,15 @@ export class ProjectUserService {
     private util_service: Util_Service,
   ) {}
 
+  private async find_project_member(project_id: bigint, user_id: bigint) {
+    return this.prisma.project_user.findFirst({
+      where: {
+        project_id,
+        user_id,
+      },
+    });
+  }
+
   async get_by_project_id(project_id: bigint) {
     return this.prisma.project_user.findMany({
       where: {
@@ -48,13 +57,9 @@ export class ProjectUserService {
         message: "You don't have permission to perform this action",
       });
 
-    const project_member = await this.prisma.project_user.findFirst({
-      where: {
-        project_id: projectId,
-        user_id: userId,
-      },
-    });
-    if (project_member)
+    const member = await this.find_project_member(projectId, userId);
+
+    if (member)
       throw new ConflictException({ message: 'Member already exists!' });
 
     return await this.util_service.use_tranaction(async (tx) => {
@@ -81,11 +86,53 @@ export class ProjectUserService {
     { projectId, userId }: Add_Project_User_Request_DTO,
     user: user_with_role_and_urls_with_id_as_bigInt,
   ) {
-    // Todo: Logic wasn't very understandable
-    throw new NotImplementedException({ message: 'Not implemented yet!' });
+    // Todo: Logic need to be revised
+    const project = await this.prisma.project.findFirst({
+      where: {
+        id: projectId,
+      },
+    });
+
+    if (project.creator_id === userId)
+      throw new ForbiddenException({
+        message: "You don't have permission to perform this action",
+      });
+
+    const member = await this.find_project_member(projectId, userId);
+    if (!member)
+      throw new NotFoundException({ message: 'Member does not exist!' });
+
+    // Check to allow if logged_in user is exiting (Cause using same endpoint for removing user and exiting)
+    const { role } =
+      await this.role_user_service.find_user_role_by_user_id_and_business_id(
+        user.id,
+        projectId,
+        BigInt(Role_Category.project_role),
+      );
+    if (role.id === BigInt(Roles.project_member) && userId !== user.id)
+      throw new ForbiddenException({
+        message: "You don't have permission to perform this action",
+      });
+
+    return await this.util_service.use_tranaction(async (tx) => {
+      await tx.project_user.deleteMany({
+        where: {
+          project_id: projectId,
+          user_id: userId,
+        },
+      });
+      return await this.role_user_service.remove_user_role(
+        {
+          userId,
+          businessId: projectId,
+          categortyId: BigInt(Role_Category.project_role),
+        },
+        tx,
+      );
+    });
   }
 
-  async add_user_role(
+  async update_role(
     { projectId, roleId, userId }: Get_Project_User_Role_Request_DTO,
     user: user_with_role_and_urls_with_id_as_bigInt,
   ) {
@@ -104,13 +151,13 @@ export class ProjectUserService {
       throw new BadRequestException({
         message: 'Creator role ID is not configured!',
       });
-    else if (BigInt(val) === roleId)
+    else if (roleId === BigInt(Roles.project_creator))
       throw new ForbiddenException({
         message: 'Cannot assign the creator role!',
       });
 
     try {
-      return this.role_user_service.add({
+      return this.role_user_service.update({
         roleId,
         userId,
         categoryId: BigInt(Role_Category.project_role),
@@ -118,7 +165,9 @@ export class ProjectUserService {
       });
     } catch (error) {
       console.log(error, 'Error role_user_service.add');
-      throw new InternalServerErrorException({ message: 'Failed to set role' });
+      throw new InternalServerErrorException({
+        message: 'Failed to update role',
+      });
     }
   }
 }

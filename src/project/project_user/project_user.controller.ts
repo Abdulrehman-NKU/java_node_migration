@@ -1,6 +1,7 @@
 import {
   Controller,
   Post,
+  Patch,
   Delete,
   Query,
   Body,
@@ -37,7 +38,6 @@ export class ProjectUserController {
     )();
   }
 
-  // Todo: Not Implemented Yet!
   @Delete('/') // DeleteUser
   delete_project_user(
     @Query() request_dto: Add_Project_User_Request_DTO,
@@ -48,13 +48,13 @@ export class ProjectUserController {
     )();
   }
 
-  @Post('/role') // Role
+  @Patch('/role') // Role
   role(
-    @Body() request_dto: Get_Project_User_Role_Request_DTO,
+    @Query() request_dto: Get_Project_User_Role_Request_DTO,
     @User() user: user_with_role_and_urls_with_id_as_bigInt,
   ) {
     return this.util_service.tryCatchWrapper(() =>
-      this.project_user_service.add_user_role(request_dto, user),
+      this.project_user_service.update_role(request_dto, user),
     )();
   }
 }

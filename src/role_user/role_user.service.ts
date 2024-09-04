@@ -70,6 +70,23 @@ export class RoleUserService {
     });
   }
 
+  find_user_role_by_user_id_and_business_id(
+    user_id: bigint,
+    business_id: bigint,
+    category_id: bigint,
+  ) {
+    return this.prisma.role_user.findFirst({
+      where: {
+        user_id,
+        business_id,
+        category_id,
+      },
+      include: {
+        role: true,
+      },
+    });
+  }
+
   async find_fun_api_by_role_id(role_id: bigint, category?: number) {
     return await this.prisma.role_fun_api.findMany({
       where: {
