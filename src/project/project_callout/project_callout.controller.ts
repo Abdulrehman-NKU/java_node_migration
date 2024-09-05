@@ -17,6 +17,7 @@ import { ProjectCalloutService } from './project_callout.service';
 import { user_with_role_and_urls_with_id_as_bigInt } from 'src/types';
 import { User } from 'src/common/decorator/user.decorator';
 import { Get_Project_Callout_Config_Request } from './dto/get_project_callout_config_request.dto';
+import { Parse_BigInt_Pipe } from 'src/common/custom_pipes/transform_to_big_int.pipe';
 
 @UseGuards(Jwt_Auth_Gurad)
 @UseInterceptors(Trasnform_BigInt_To_String)
@@ -39,13 +40,24 @@ export class ProjectCalloutController {
     @User() user: user_with_role_and_urls_with_id_as_bigInt,
   ) {
     return this.util_service.tryCatchWrapper(() =>
-      this.project_callout_service.create(request_dto, user),
+      this.project_callout_service.create_or_update(request_dto, user),
     )();
   }
 
-  @Patch('id')
-  update() {}
+  @Patch()
+  update(
+    @Body() request_dto: Create_Project_Callout_Config_Request_DTO,
+    @User() user: user_with_role_and_urls_with_id_as_bigInt,
+  ) {
+    return this.util_service.tryCatchWrapper(() =>
+      this.project_callout_service.update(request_dto, user),
+    )();
+  }
 
   @Delete('id')
-  delete() {}
+  delete(@Query('id', Parse_BigInt_Pipe) id: bigint) {
+    return this.util_service.tryCatchWrapper(() =>
+      this.project_callout_service.delete(id),
+    )();
+  }
 }
