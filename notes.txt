@@ -1,1 +1,2 @@
 Added two record in role_fun_api ----> links project_manager and project_member to Project#exit fun_api (id = 108)
+Did added the relation for project_callout_config due to less current knowledge
