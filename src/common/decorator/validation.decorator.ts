@@ -3,7 +3,11 @@ import { Transform } from 'class-transformer';
 import { IsNotEmpty } from 'class-validator';
 
 export function IsNotEmpty_Type_Cast(
-  constructor: BigIntConstructor | StringConstructor | NumberConstructor,
+  constructor:
+    | BigIntConstructor
+    | StringConstructor
+    | NumberConstructor
+    | DateConstructor,
 ) {
   return applyDecorators(
     IsNotEmpty(),
