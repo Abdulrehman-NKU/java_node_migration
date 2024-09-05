@@ -60,12 +60,8 @@ export class UserService {
       },
     });
 
-    if (!user)
-      // Good Practice to avoid brute force
-      throw new UnauthorizedException({
-        message: 'Incorrect username or password',
-      });
-    else if (
+    if (
+      !user || // Good Practice to avoid brute force
       !this.password_service.checkPasswordCorrect(
         user_login_request_dto.password,
         user.password,

@@ -13,6 +13,7 @@ import { RoleUserModule } from 'src/role_user/role_user.module';
 import { RoleUserService } from 'src/role_user/role_user.service';
 import { ProjectTagModule } from './project_tag/project_tag.module';
 import { ProjectTagService } from './project_tag/project_tag.service';
+import { ProjectCalloutModule } from './project_callout/project_callout.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { ProjectTagService } from './project_tag/project_tag.service';
     RoleUserModule,
     ProjectTagModule,
     ProjectTagModule,
+    ProjectCalloutModule,
   ],
   providers: [
     ProjectService,
