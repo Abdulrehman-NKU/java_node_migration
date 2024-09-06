@@ -11,6 +11,10 @@ export function IsNotEmpty_Type_Cast(
 ) {
   return applyDecorators(
     IsNotEmpty(),
-    Transform(({ value }) => constructor(value)),
+    Transform(({ value }) =>
+      value instanceof Array
+        ? value.map((v) => constructor(v))
+        : constructor(value),
+    ),
   );
 }

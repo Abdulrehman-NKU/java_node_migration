@@ -1,6 +1,8 @@
 import { Util_Service } from 'src/util/util.service';
 import { MarkService } from './mark.service';
-import { Controller } from '@nestjs/common';
+import { Controller, Get, Query, Body, Post } from '@nestjs/common';
+import { Parse_BigInt_Pipe } from 'src/common/custom_pipes/transform_to_big_int.pipe';
+import { Get_Project_Image_List_Request_DTO } from './dto/Get_Project_Image_List_Request_DTO';
 
 @Controller('mark')
 export class MarkController {
@@ -8,6 +10,27 @@ export class MarkController {
     private mark_service: MarkService,
     private util_service: Util_Service,
   ) {}
+
+  @Post('/project/img/list') // listByProjectId
+  async get_project_images(
+    @Body() request_dto: Get_Project_Image_List_Request_DTO,
+  ) {
+    return this.util_service.tryCatchWrapper(() =>
+      this.mark_service.get_project_images_by_project_id(request_dto),
+    )();
+  }
+
+  async post_project_image() {}
+  /**
+   * projectImg
+   *
+   * getById
+   * listByProjectId
+   * listByProjectIndex
+   * delRelationData
+   * downLoadImgTxt
+   * transImgUrl/{projectId}/{fileName}
+   */
 
   /**
    * arConfig
@@ -102,17 +125,6 @@ export class MarkController {
    * AddUser
    * DeleteUser
    * Role
-   */
-
-  /**
-   * projectImg
-   *
-   * getById
-   * listByProjectId
-   * listByProjectIndex
-   * delRelationData
-   * downLoadImgTxt
-   * transImgUrl/{projectId}/{fileName}
    */
 
   /**

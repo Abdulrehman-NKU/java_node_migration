@@ -15,6 +15,7 @@ import { ProjectModule } from './project/project.module';
 import { SystemConfigModule } from './system_config/system_config.module';
 import { RoleUserModule } from './role_user/role_user.module';
 import { TeamModule } from './team/team.module';
+import { FileSystemModule } from './file_system/file_system.module';
 
 @Module({
   imports: [
@@ -23,14 +24,15 @@ import { TeamModule } from './team/team.module';
       inject: [EmailConfigService],
       useFactory: async (emailConfigService: EmailConfigService) => {
         const config = await emailConfigService.get_email_config();
-        if (!config) return {
-          transport: {
-            host: "",
-            port: null,
-          }
-        }
-        
-        const { email_host, account, password, port, use_ssl } = config
+        if (!config)
+          return {
+            transport: {
+              host: '',
+              port: null,
+            },
+          };
+
+        const { email_host, account, password, port, use_ssl } = config;
         return {
           transport: {
             host: email_host,
@@ -58,6 +60,7 @@ import { TeamModule } from './team/team.module';
     SystemConfigModule,
     RoleUserModule,
     TeamModule,
+    FileSystemModule,
   ],
   controllers: [AppController],
   providers: [AppService],

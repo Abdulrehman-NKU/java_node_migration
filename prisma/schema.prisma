@@ -328,16 +328,17 @@ model project_image {
   create_time   DateTime  @default(now()) @db.DateTime(0)
   project_id    BigInt
   project       project   @relation(fields: [project_id], references: [id])
-  file_url      String?   @db.VarChar(255)
-  file_name     String?   @db.VarChar(255)
-  new_file_name String?   @db.VarChar(255)
+  file_url      String    @db.VarChar(255)
+  file_name     String    @db.VarChar(255)
+  new_file_name String    @db.VarChar(255)
   size          BigInt
-  status        Int
+  status        Int       @default(1)
   complete_time DateTime? @db.DateTime(0)
   user_id       BigInt?
+  user          users?    @relation(references: [id], fields: [user_id])
   source_video  String?   @db.VarChar(255)
-  height        Int?
-  width         Int?
+  height        Int?      @default(0)
+  width         Int?      @default(0)
 
   @@index([project_id], map: "idx_project_id")
 }
@@ -621,20 +622,21 @@ model train_config {
 }
 
 model users {
-  id                  BigInt         @id @default(autoincrement())
-  create_time         DateTime       @default(now())
-  account             String?        @db.VarChar(255)
-  password            String?        @db.VarChar(255)
-  email               String?        @db.VarChar(255)
-  tel_num             String?        @db.VarChar(255)
-  true_name           String?        @db.VarChar(255)
-  nick_name           String?        @db.VarChar(255)
-  status              Int            @default(1)
+  id                  BigInt          @id @default(autoincrement())
+  create_time         DateTime        @default(now())
+  account             String?         @db.VarChar(255)
+  password            String?         @db.VarChar(255)
+  email               String?         @db.VarChar(255)
+  tel_num             String?         @db.VarChar(255)
+  true_name           String?         @db.VarChar(255)
+  nick_name           String?         @db.VarChar(255)
+  status              Int             @default(1)
   project_user        project_user[]
   role_user           role_user[]
-  project_tag_created project_tag[]  @relation("tag_created_by_user")
-  project_tag_updated project_tag[]  @relation("tag_updated_by_user")
+  project_tag_created project_tag[]   @relation("tag_created_by_user")
+  project_tag_updated project_tag[]   @relation("tag_updated_by_user")
   team_user           team_user[]
+  project_image       project_image[]
 }
 
 model users_copy1 {
