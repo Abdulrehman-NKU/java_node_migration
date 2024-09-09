@@ -9,11 +9,6 @@ export class Password_Service {
   }
 
   checkPasswordCorrect(password: string, hashedPassword: string) {
-    console.log({
-      newHash: this.hashPassword(password),
-      hashedPassword,
-      password,
-    });
     return this.hashPassword(password) === hashedPassword;
   }
 }

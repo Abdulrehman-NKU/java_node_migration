@@ -35,26 +35,27 @@ model config_template {
   create_id   BigInt
   create_time DateTime @default(now()) @db.DateTime(0)
   update_id   BigInt?
-  update_time DateTime @default(now()) @updatedAt
+  update_time DateTime @updatedAt
 
   @@index([scene_id], map: "idx_scene_id")
 }
 
 model cut_data {
-  id                      BigInt    @id @default(autoincrement())
-  project                 project   @relation(fields: [project_id], references: [id])
+  id                      BigInt        @id @default(autoincrement())
+  project                 project       @relation(fields: [project_id], references: [id])
   project_id              BigInt
   image_id                BigInt
+  image                   project_image @relation(fields: [image_id], references: [id])
   image_batch_relation_id BigInt?
   batch_id                BigInt?
   type                    Int?
-  all_points_x            String?   @db.VarChar(255)
-  all_points_y            String?   @db.VarChar(255)
-  name                    String?   @db.VarChar(50)
+  all_points_x            String?       @db.VarChar(255)
+  all_points_y            String?       @db.VarChar(255)
+  name                    String?       @db.VarChar(50)
   create_id               BigInt
-  create_time             DateTime? @default(now()) @db.DateTime(0)
+  create_time             DateTime?     @default(now()) @db.DateTime(0)
   update_id               BigInt?
-  update_time             DateTime  @default(now()) @updatedAt
+  update_time             DateTime      @updatedAt
 
   @@index([image_id], map: "image_index")
   @@index([project_id], map: "project_index")
@@ -67,7 +68,7 @@ model data_record {
   create_id   BigInt
   create_time DateTime @default(now()) @db.DateTime(0)
   update_id   BigInt?
-  update_time DateTime @default(now()) @updatedAt
+  update_time DateTime @updatedAt
 
   @@index([create_id], map: "idx_create_id")
 }
@@ -82,7 +83,7 @@ model data_record_item {
   create_id      BigInt
   create_time    DateTime @default(now()) @db.DateTime(0)
   update_id      BigInt?
-  update_time    DateTime @default(now()) @updatedAt
+  update_time    DateTime @updatedAt
 
   @@index([data_record_id], map: "idx_data_record_id")
   @@index([image_id], map: "idx_image_id")
@@ -167,20 +168,21 @@ model model_version {
 }
 
 model point_data {
-  id                      BigInt    @id @default(autoincrement())
+  id                      BigInt        @id @default(autoincrement())
   project_id              BigInt
-  project                 project   @relation(fields: [project_id], references: [id])
+  project                 project       @relation(fields: [project_id], references: [id])
   image_id                BigInt
+  image                   project_image @relation(fields: [image_id], references: [id])
   image_batch_relation_id BigInt?
   batch_id                BigInt?
   type                    Int?
   cx                      Int?
   cy                      Int?
-  name                    String?   @db.VarChar(50)
+  name                    String?       @db.VarChar(50)
   create_id               BigInt
-  create_time             DateTime? @default(now()) @db.DateTime(0)
+  create_time             DateTime?     @default(now()) @db.DateTime(0)
   update_id               BigInt?
-  update_time             DateTime  @default(now()) @updatedAt
+  update_time             DateTime      @updatedAt
 
   @@index([image_id], map: "idx_image_id")
   @@index([project_id], map: "idx_project_id")
@@ -196,7 +198,7 @@ model project {
   remarks                      String?                        @db.VarChar(255)
   creator_id                   BigInt
   start_time                   DateTime                       @default(now())
-  last_update_time             DateTime                       @default(now()) @updatedAt
+  last_update_time             DateTime                       @updatedAt
   end_time                     DateTime                       @default(now())
   category                     Int
   scene_category               BigInt
@@ -231,7 +233,7 @@ model project_ar_config {
   create_id   BigInt
   create_time DateTime @default(now()) @db.DateTime(0)
   update_id   BigInt?
-  update_time DateTime @default(now()) @updatedAt
+  update_time DateTime @updatedAt
 
   @@index([project_id], map: "idx_project_id")
 }
@@ -249,7 +251,7 @@ model project_ar_config_0902 {
   create_id             BigInt
   create_time           DateTime @default(now()) @db.DateTime(0)
   update_id             BigInt?
-  update_time           DateTime @default(now()) @updatedAt
+  update_time           DateTime @updatedAt
 
   @@index([project_id], map: "idx_project_id")
 }
@@ -264,7 +266,7 @@ model project_ar_image {
   create_id   BigInt
   create_time DateTime @default(now()) @db.DateTime(0)
   update_id   BigInt?
-  update_time DateTime @default(now()) @updatedAt
+  update_time DateTime @updatedAt
 
   @@index([project_id], map: "idx_project_id")
 }
@@ -277,7 +279,7 @@ model project_batch {
   create_id   String   @db.VarChar(32)
   create_time DateTime @default(now()) @db.DateTime(0)
   update_id   String?  @db.VarChar(32)
-  update_time DateTime @default(now()) @updatedAt
+  update_time DateTime @updatedAt
 }
 
 model project_callout_config {
@@ -292,7 +294,7 @@ model project_callout_config {
   create_id   BigInt
   create_time DateTime @default(now()) @db.DateTime(0)
   update_id   BigInt?
-  update_time DateTime @default(now()) @updatedAt
+  update_time DateTime @updatedAt
 
   @@index([class_id], map: "idx_class_id")
   @@index([parent_id], map: "idx_parent_id")
@@ -324,21 +326,24 @@ model project_config {
 }
 
 model project_image {
-  id            BigInt    @id @default(autoincrement())
-  create_time   DateTime  @default(now()) @db.DateTime(0)
+  id            BigInt       @id @default(autoincrement())
+  create_time   DateTime     @default(now()) @db.DateTime(0)
   project_id    BigInt
-  project       project   @relation(fields: [project_id], references: [id])
-  file_url      String    @db.VarChar(255)
-  file_name     String    @db.VarChar(255)
-  new_file_name String    @db.VarChar(255)
+  project       project      @relation(fields: [project_id], references: [id])
+  file_url      String       @db.VarChar(255)
+  file_name     String       @db.VarChar(255)
+  new_file_name String       @db.VarChar(255)
   size          BigInt
-  status        Int       @default(1)
-  complete_time DateTime? @db.DateTime(0)
+  status        Int          @default(1)
+  complete_time DateTime?    @db.DateTime(0)
   user_id       BigInt?
-  user          users?    @relation(references: [id], fields: [user_id])
-  source_video  String?   @db.VarChar(255)
-  height        Int?      @default(0)
-  width         Int?      @default(0)
+  user          users?       @relation(references: [id], fields: [user_id])
+  source_video  String?      @db.VarChar(255)
+  height        Int?         @default(0)
+  width         Int?         @default(0)
+  rect_data     rect_data[]
+  cut_data      cut_data[]
+  point_data    point_data[]
 
   @@index([project_id], map: "idx_project_id")
 }
@@ -397,7 +402,7 @@ model project_scene {
   icon        String?  @db.VarChar(255)
   status      Int
   remarks     String?  @db.VarChar(255)
-  update_time DateTime @default(now()) @updatedAt
+  update_time DateTime @updatedAt
   notes       String?  @db.LongText
   config      String?  @db.LongText
 }
@@ -408,7 +413,7 @@ model project_tag {
   project     project  @relation(fields: [project_id], references: [id])
   tag         String   @db.VarChar(30)
   create_time DateTime @default(now()) @db.DateTime(0)
-  update_time DateTime @default(now()) @updatedAt
+  update_time DateTime @updatedAt
   created_by  users    @relation("tag_created_by_user", fields: [create_id], references: [id])
   create_id   BigInt
   updated_by  users?   @relation("tag_updated_by_user", fields: [update_id], references: [id])
@@ -434,7 +439,7 @@ model project_vr_config {
   create_id   BigInt
   create_time DateTime @default(now()) @db.DateTime(0)
   update_id   BigInt?
-  update_time DateTime @default(now()) @updatedAt
+  update_time DateTime @updatedAt
 
   @@index([project_id], map: "idx_project_id")
 }
@@ -460,27 +465,28 @@ model project_vr_config_0902 {
   create_id           BigInt
   create_time         DateTime @default(now()) @db.DateTime(0)
   update_id           BigInt?
-  update_time         DateTime @default(now()) @updatedAt
+  update_time         DateTime @updatedAt
 
   @@index([project_id], map: "idx_project_id")
 }
 
 model rect_data {
-  id                      BigInt   @id @default(autoincrement())
+  id                      BigInt        @id @default(autoincrement())
   project_id              BigInt
-  project                 project  @relation(fields: [project_id], references: [id])
+  project                 project       @relation(fields: [project_id], references: [id])
   image_id                BigInt
+  image                   project_image @relation(fields: [image_id], references: [id])
   image_batch_relation_id BigInt?
   batch_id                BigInt?
   x                       Int
   y                       Int
   height                  Int
   width                   Int
-  type                    Boolean  @default(false)
+  type                    Boolean       @default(false)
   create_id               BigInt
-  create_time             DateTime @default(now()) @db.DateTime(0)
+  create_time             DateTime      @default(now()) @db.DateTime(0)
   update_id               BigInt?
-  update_time             DateTime @default(now()) @updatedAt
+  update_time             DateTime      @updatedAt
 
   @@index([image_id], map: "idx_image_id")
   @@index([project_id], map: "idx_project_id")
