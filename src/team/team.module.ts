@@ -15,6 +15,6 @@ import { TeamInviteCodeModule } from './team_invite_code/team_invite_code.module
     TeamInviteCodeModule,
   ],
   controllers: [TeamController],
-  providers: [TeamService, TeamUserService],
+  providers: [TeamService],
 })
 export class TeamModule {}

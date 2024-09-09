@@ -4,6 +4,8 @@ import {
   NotFoundException,
   ForbiddenException,
   InternalServerErrorException,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { Prisma_Service } from 'src/prisma/prisma.service';
 import { Add_Empty_Project_Request_DTO } from './dto/add_empty_project_request.dto';
@@ -64,7 +66,6 @@ export class ProjectService {
       ).map(({ fun_api }) => fun_api);
 
       const filter_fun_list = (urls_list: string[]) => {
-        console.log({ urls_list, fun_api_list, project_user_role });
         users.push({
           userId: user_id,
           userAccount: user.account,
@@ -72,8 +73,6 @@ export class ProjectService {
           funList: fun_api_list.filter(({ url }) => urls_list.includes(url)),
         });
       };
-
-      console.log({ authenticated_user, user_id, project_user_role });
 
       if (
         authenticated_user.id === user_id &&
@@ -97,6 +96,21 @@ export class ProjectService {
     }
 
     return users;
+  }
+
+  async check_if_exist_and_not_deleted(id: bigint) {
+    const project = await this.prisma.project.findFirst({
+      where: {
+        id: BigInt(id),
+      },
+    });
+
+    if (!project)
+      throw new NotFoundException({ message: 'Project does not exist' });
+    else if (project.status === Project_Enum.STATUS_DELETE)
+      throw new BadRequestException({ message: 'Project has been deleted' });
+
+    return project;
   }
 
   async add_empty(
@@ -175,16 +189,7 @@ export class ProjectService {
     startTime,
     endTime,
   }: Edit_Project_Request_DTO) {
-    const project = await this.prisma.project.findFirst({
-      where: {
-        id: BigInt(id),
-      },
-    });
-
-    if (!project)
-      throw new NotFoundException({ message: 'Project does not exist' });
-    else if (project.status === Project_Enum.STATUS_DELETE)
-      throw new BadRequestException({ message: 'Project has been deleted' });
+    const project = await this.check_if_exist_and_not_deleted(id);
 
     return this.prisma.project.update({
       where: {

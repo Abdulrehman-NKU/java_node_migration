@@ -1,26 +1,48 @@
+import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import { Prisma_Service } from 'src/prisma/prisma.service';
 import { Get_Project_Image_List_Request_DTO } from './dto/Get_Project_Image_List_Request_DTO';
-import { Injectable } from '@nestjs/common';
 import { cut_data, point_data, rect_data } from '@prisma/client';
 import { Util_Service } from 'src/util/util.service';
 import { Project_Mark } from './enum/project_mark.enum';
+import { ProjectService } from '../project.service';
 
 @Injectable()
-export class MarkService {
+export class ProjectMarkService {
   constructor(
     private prisma: Prisma_Service,
     private util_service: Util_Service,
+    private project_service: ProjectService,
   ) {}
 
-  async get_project_images_by_project_id({
-    status,
-    classId,
-    projectId,
-    projectIds = [],
-    currentPage,
-    pageSize,
-    orderCreateTime,
-  }: Get_Project_Image_List_Request_DTO) {
+  private async get_marks_via_project_id<T>(
+    project_id: bigint,
+    type: 'rect_data' | 'cut_data' | 'point_data',
+  ): Promise<T> {
+    return this.prisma[type + ''].findMany({
+      where: {
+        project_id,
+      },
+    });
+  }
+
+  async get_images_by_project_id(
+    {
+      status,
+      classId,
+      projectId,
+      projectIds = [],
+      currentPage,
+      pageSize,
+      orderCreateTime,
+    }: Get_Project_Image_List_Request_DTO,
+    {
+      protocol,
+      host,
+    }: {
+      protocol: string;
+      host: string;
+    },
+  ) {
     if (status === 0 || status === -1) status = null;
 
     /**
@@ -66,7 +88,7 @@ export class MarkService {
               : {}),
           },
           take: pageSize,
-          skip: pageSize * currentPage,
+          skip: (currentPage - 1) * pageSize,
         });
 
         const count = await tx.project_image.count({
@@ -82,9 +104,9 @@ export class MarkService {
 
     return {
       records: records
-        .map((r) => this.util_service.snake_to_camel_case_the_object_fields(r))
         .map((r) => ({
           ...r,
+          file_url: protocol + '://' + host + '/' + r.file_url,
           rectDataList: null,
           file_attributes: '{}',
           markList: null,
@@ -94,7 +116,8 @@ export class MarkService {
           autoCount: null,
           updateName: null,
           updateTime: null,
-        })),
+        }))
+        .map((r) => this.util_service.snake_to_camel_case_the_object_fields(r)),
       current: currentPage,
       size: pageSize,
       total: count, // Total Number of Images
@@ -144,14 +167,19 @@ export class MarkService {
     */
   }
 
-  async get_marks_via_project_id<T>(
-    project_id: bigint,
-    type: 'rect_data' | 'cut_data' | 'point_data',
-  ): Promise<T> {
-    return this.prisma[type + ''].findMany({
-      where: {
+  async post_image(project_id: bigint, files: Array<Express.Multer.File>) {
+    await this.project_service.check_if_exist_and_not_deleted(project_id);
+
+    return await this.prisma.project_image.createMany({
+      data: files.map((file) => ({
+        file_name: file.originalname,
+        file_url:
+          process.env.FILE_STORAGE + '/' + project_id + '/' + file.filename,
+        new_file_name: file.filename,
         project_id,
-      },
+        size: file.size,
+        status: Project_Mark.INIT,
+      })),
     });
   }
 }

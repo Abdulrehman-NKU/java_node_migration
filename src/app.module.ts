@@ -10,12 +10,12 @@ import { EmailConfigModule } from './email_config/email_config.module';
 import { VerificationCodeModule } from './verification_code/verification_code.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { EmailConfigService } from './email_config/email_config.service';
-import { MarkModule } from './mark/mark.module';
 import { ProjectModule } from './project/project.module';
 import { SystemConfigModule } from './system_config/system_config.module';
 import { RoleUserModule } from './role_user/role_user.module';
 import { TeamModule } from './team/team.module';
 import { FileSystemModule } from './file_system/file_system.module';
+import { ProjectMarkModule } from './project/project_mark/project_mark.module';
 
 @Module({
   imports: [
@@ -55,8 +55,8 @@ import { FileSystemModule } from './file_system/file_system.module';
     AuthModule,
     EmailConfigModule,
     VerificationCodeModule,
-    MarkModule,
     ProjectModule,
+    ProjectMarkModule,
     SystemConfigModule,
     RoleUserModule,
     TeamModule,
