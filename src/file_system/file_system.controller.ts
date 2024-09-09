@@ -5,7 +5,7 @@ import {
   UploadedFiles,
 } from '@nestjs/common';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
-import { Multer_Disk_Storage } from 'src/config';
+import { Multer_Disk_Storage } from 'src/configs/multer';
 
 @Controller('file')
 export class FileSystemController {

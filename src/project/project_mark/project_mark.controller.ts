@@ -16,7 +16,7 @@ import {
 } from '@nestjs/common';
 import { Get_Project_Image_List_Request_DTO } from './dto/Get_Project_Image_List_Request_DTO';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
-import { Multer_Disk_Storage } from 'src/config';
+import { Multer_Disk_Storage } from 'src/configs/multer';
 import { Parse_BigInt_Pipe } from 'src/common/custom_pipes/transform_to_big_int.pipe';
 import { Jwt_Auth_Gurad } from 'src/auth/jwt_auth.guard';
 import { Trasnform_BigInt_To_String } from 'src/common/interceptors/transform_big_int_to_string.interceptor';
