@@ -1,4 +1,3 @@
-import { BadRequestException } from '@nestjs/common';
 import { Request } from 'express';
 import { existsSync, mkdirSync } from 'fs';
 import { diskStorage } from 'multer';

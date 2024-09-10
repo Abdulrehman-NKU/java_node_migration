@@ -1,7 +1,7 @@
 import { ExecutionContext, Injectable } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Prisma_Service } from 'src/prisma/prisma.service';
-import { NotFoundException, ForbiddenException } from '@nestjs/common';
+import { UnauthorizedException, ForbiddenException } from '@nestjs/common';
 
 @Injectable()
 export class Jwt_Auth_Gurad extends AuthGuard('jwt') {
@@ -18,8 +18,9 @@ export class Jwt_Auth_Gurad extends AuthGuard('jwt') {
         id: jwt_decrypted_payload.id,
       },
     });
-    if (!user) throw new NotFoundException({ message: 'User not found' });
-    if (user.password !== jwt_decrypted_payload.password)
+    if (!user)
+      throw new UnauthorizedException({ message: 'Not authenticated!' });
+    else if (user.password !== jwt_decrypted_payload.password)
       throw new ForbiddenException({
         messge: "Please re_login, this token can't be used anymore",
       });
